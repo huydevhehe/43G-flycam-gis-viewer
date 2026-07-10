@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8" />
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <title>Cesium Flycam GIS</title>
+
+    <!-- Polyfill giải quyết triệt để lỗi crash OffscreenCanvas trên Safari iOS (Mobile) -->
+    <script>
+      if (typeof OffscreenCanvas === "undefined") {
+        window.OffscreenCanvas = class OffscreenCanvas {
+          constructor(width, height) {
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            return canvas;
+          }
+        };
+      }
+    </script>
+
+    <!-- Nạp thư viện CesiumJS -->
+    <script src="../Build/CesiumUnminified/Cesium.js"></script>
+    
+    <style>
+      @import url(../Build/CesiumUnminified/Widgets/widgets.css);
+      html,
+      body,
+      #cesiumContainer {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: 'Inter', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+    </style>
+    <!-- Nhúng Google Fonts hỗ trợ tiếng Việt cực đẹp (Inter & Be Vietnam Pro) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Nạp stylesheet giao diện bảng điều khiển nổi -->
+    <link rel="stylesheet" href="./css/style.css">
+  </head>
+  <body>
+    <!-- Quả địa cầu Cesium -->
+    <div id="cesiumContainer"></div>
+
+    <!-- HỆ THỐNG GIAO DIỆN ĐIỀU KHIỂN THU GỌN (GIS TOOLBARS) -->
+    
+    <!-- Thanh công cụ bên trái (Định vị & Bộ lọc phễu) -->
+    <div class="gis-toolbar left-toolbar">
+      <!-- Nút Định vị -->
+      <button class="tool-btn" id="btnLocate" title="Bay về vùng Flycam">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12,8A4,4,0,1,1,8,12,4,4,0,0,1,12,8m0-6A10,10,0,1,0,22,12,10,10,0,0,0,12,2M12,4a8,8,0,1,1-8,8,8,8,0,0,1,8-8Z"/>
+          <path d="M12,1v2M12,21v2M1,12h2M21,12h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      
+      <!-- Nút Phễu Bộ Lọc -->
+      <button class="tool-btn" id="btnFilter" title="Ẩn/hiện lớp dữ liệu & bản đồ">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Popup Menu Lớp dữ liệu (Bấm nút phễu để hiện/ẩn) -->
+    <div class="gis-popup-menu" id="gisPopupMenu">
+      <!-- Group Ẩn/Hiện lớp dữ liệu theo từng dự án -->
+      <div class="menu-section">
+        <label class="section-title-static">Dự án & Lớp dữ liệu</label>
+        <div class="project-list" id="projectList">
+          <!-- Danh sách dự án được app.js tự dựng động từ API /api/projects (database) -->
+        </div>
+      </div>
+
+
+      <!-- Group Chọn bản đồ nền -->
+      <div class="menu-section" style="margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 15px;">
+        <label class="section-title-static">Chọn map cơ sở</label>
+        <div class="menu-options">
+          <label class="menu-radio-item">
+            <input type="radio" name="baseMapRadio" id="radioSatellite" value="satellite" checked>
+            <span class="custom-radio"></span>
+            <span>Ảnh Vệ tinh (Mặc định)</span>
+          </label>
+          <label class="menu-radio-item">
+            <input type="radio" name="baseMapRadio" id="radioStreet" value="street">
+            <span class="custom-radio"></span>
+            <span>Bản đồ đường phố</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thanh công cụ bên phải (Thu phóng & Đo đạc) -->
+    <div class="gis-toolbar right-toolbar">
+      <!-- Nút Full Screen -->
+      <button class="tool-btn" id="btnFullScreen" title="Phóng to/Thu nhỏ màn hình">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+        </svg>
+      </button>
+      
+      <!-- Nút Zoom In -->
+      <button class="tool-btn" id="btnZoomIn" title="Phóng to bản đồ">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+      </button>
+
+      <!-- Nút Zoom Out -->
+      <button class="tool-btn" id="btnZoomOut" title="Thu nhỏ bản đồ">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19 13H5v-2h14v2z"/>
+        </svg>
+      </button>
+
+      <!-- Nút Đo Khoảng Cách -->
+      <button class="tool-btn" id="btnDistance" title="Đo khoảng cách">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M19,19H5V5h14V19z M7,7h2v2H7V7z M7,11h4v2H7V11z M7,15h2v2H7V15z M15,7h2v10h-2V7z"/>
+        </svg>
+      </button>
+
+      <!-- Nút Đo Diện Tích -->
+      <button class="tool-btn" id="btnArea" title="Đo diện tích">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17,2H7C4.79,2,3,3.79,3,6v12c0,2.21,1.79,4,4,4h10c2.21,0,4-1.79,4-4V6C21,3.79,19.21,2,17,2z M19,18c0,1.1-0.9,2-2,2H7 c-1.1,0-2-0.9-2-2V6c0-1.1,0.9-2,2-2h10c1.1,0,2,0.9,2,2V18z M12,6.5l5.5,4.12l-2.1,6.38H8.6l-2.1-6.38L12,6.5z"/>
+        </svg>
+      </button>
+
+      <!-- Nút Xóa Đo Đạc (Gộp chung) -->
+      <button class="tool-btn btn-danger" id="btnClearMeasure" title="Xóa dữ liệu đo đạc">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Nút Hoàn Thành Đo Đạc Nổi (Bắt đầu đo sẽ hiện ở cạnh dưới màn hình) -->
+    <button id="btnFinishMeasure" class="gis-finish-btn" style="display: none;">
+      <span>✓ Hoàn thành đo đạc (Chốt hình)</span>
+    </button>
+
+    <!-- Nạp các module logic Javascript -->
+    <script src="./js/MapManager.js"></script>
+    <script src="./js/MeasureTool.js"></script>
+    <script src="./js/ElevationTool.js"></script>
+    <script src="./js/app.js"></script>
+  </body>
+</html>

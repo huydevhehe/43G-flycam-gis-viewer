@@ -1,0 +1,62 @@
+/.metadata
+/Build
+/Cesium-*.zip
+/cesium-*.tgz
+/packages/**/*.tgz
+.directory
+.DS_Store
+Thumbs.db
+.eslintcache
+
+/Apps/CesiumViewer/Gallery/gallery-index.js
+
+/Apps/Sandcastle2
+
+/Source/Assets/
+/Source/**/*.d.ts
+/Source/ThirdParty/
+/Source/Widgets/
+/Source/Cesium.d.ts
+/Source/Cesium.js
+
+/Specs/SpecList.js
+/Specs/jasmine/**
+
+# playwright
+/playwright/.cache/
+/Specs/e2e/*-snapshots/
+
+/Tools/jsdoc/cesium_template/static/javascript/prism.js
+/Tools/jsdoc/cesium_template/static/styles/prism.css
+
+/node_modules
+npm-debug.log
+npm-debug.log.*
+package-lock.json
+yarn.lock
+
+# WebStorm user-specific
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/shelf
+
+# Used in the CLA checking GitHub workflow
+GoogleConfig.json
+
+# Custom ignores for DEM elevation points task
+*.tif
+/Apps/SampleData/b.tif
+/extract-dem.js
+/extract-dem-test.js
+
+# File chứa thông tin đăng nhập database, không đưa lên git
+/.env
+
+# Folder tile tạm khi xử lý TIF, ảnh thật đã nằm trong database
+/anh
+
+# File/folder thuộc cộng đồng đóng góp Cesium gốc, không liên quan tới phần tự làm
+/CONTRIBUTORS.md
+/CODE_OF_CONDUCT.md
+/.github
+
