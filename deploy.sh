@@ -7,8 +7,9 @@ set -e
 cd /home/tvr/43G-flycam-gis-viewer
 
 echo "[1/3] Dung app hien tai (chi port 3003)..."
-# Pattern phai kem --port: instance kia cung chay "node server.js", pkill se giet nham.
-pkill -f "server.js --port 3003" 2>/dev/null && echo "  -> Da dung." || echo "  -> App chua chay, bo qua."
+# Giet theo cong chu khong theo ten tien trinh: instance o cong khac khong the bi cham toi.
+# Can goi psmisc (/usr/bin/fuser) - neu thieu, script se bao "App chua chay" roi chet o EADDRINUSE.
+fuser -k 3003/tcp 2>/dev/null && echo "  -> Da dung." || echo "  -> App chua chay, bo qua."
 sleep 1
 
 echo "[2/3] Git pull code moi nhat..."
