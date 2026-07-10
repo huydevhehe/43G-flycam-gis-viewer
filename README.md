@@ -51,8 +51,8 @@ CesiumJS frontend (dynamic project list + map layers)
 ### Setup
 
 ```bash
-git clone https://github.com/huydevhehe/flycam-gis-viewer.git
-cd flycam-gis-viewer
+git clone https://github.com/huydevhehe/43G-flycam-gis-viewer.git
+cd 43G-flycam-gis-viewer
 npm install
 ```
 
@@ -176,8 +176,8 @@ Frontend CesiumJS (danh sách dự án + lớp bản đồ tự dựng)
 ### Cài đặt
 
 ```bash
-git clone https://github.com/huydevhehe/flycam-gis-viewer.git
-cd flycam-gis-viewer
+git clone https://github.com/huydevhehe/43G-flycam-gis-viewer.git
+cd 43G-flycam-gis-viewer
 npm install
 ```
 
