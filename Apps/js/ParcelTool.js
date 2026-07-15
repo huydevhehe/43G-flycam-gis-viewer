@@ -11,6 +11,10 @@ class ParcelTool {
     this.userVisible = true; // Mặc định bật hiển thị từ UI
     this.listenersSetup = false;
 
+    // Bbox toàn bộ shapefile ThuaDat.shp (đọc trực tiếp từ header .shp) — khu vực Hà Nội,
+    // dùng để đưa camera bay tới xem layer này (nó không nằm cùng vị trí các dự án flycam).
+    this.bbox = Cesium.Rectangle.fromDegrees(105.801315, 21.016571, 105.830011, 21.036977);
+
     // Khởi tạo các phần tử DOM của popup
     this.initPopupDOM();
   }

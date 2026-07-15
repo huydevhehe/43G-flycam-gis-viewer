@@ -57,20 +57,26 @@
     
     <!-- Thanh công cụ bên trái (Định vị & Bộ lọc phễu) -->
     <div class="gis-toolbar left-toolbar">
-      <!-- Nút Định vị -->
-      <button class="tool-btn" id="btnLocate" title="Bay về vùng Flycam">
+      <!-- Nút Định vị (bấm để chọn khu vực bay tới) -->
+      <button class="tool-btn" id="btnLocate" title="Chọn khu vực bay tới">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M12,8A4,4,0,1,1,8,12,4,4,0,0,1,12,8m0-6A10,10,0,1,0,22,12,10,10,0,0,0,12,2M12,4a8,8,0,1,1-8,8,8,8,0,0,1,8-8Z"/>
           <path d="M12,1v2M12,21v2M1,12h2M21,12h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </button>
-      
+
       <!-- Nút Phễu Bộ Lọc -->
       <button class="tool-btn" id="btnFilter" title="Ẩn/hiện lớp dữ liệu & bản đồ">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
         </svg>
       </button>
+    </div>
+
+    <!-- Menu chọn khu vực bay tới (Bấm nút Định vị để hiện/ẩn) -->
+    <div class="locate-dropdown" id="locateDropdown">
+      <button class="locate-dropdown-item" id="btnLocateFlycam">Khu vực Flycam</button>
+      <button class="locate-dropdown-item" id="btnLocateParcel">Khu vực thửa đất (Hà Nội)</button>
     </div>
 
     <!-- Popup Menu Lớp dữ liệu (Bấm nút phễu để hiện/ẩn) -->

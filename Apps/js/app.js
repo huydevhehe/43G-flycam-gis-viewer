@@ -129,20 +129,53 @@ function attachStaticUiEvents() {
   // XỬ LÝ THANH CÔNG CỤ BÊN TRÁI (LEFT TOOLBAR)
   // ==========================================
 
+  const btnFilter = document.getElementById("btnFilter");
+  const gisPopupMenu = document.getElementById("gisPopupMenu");
+
   const btnLocate = document.getElementById("btnLocate");
-  if (btnLocate) {
-    btnLocate.addEventListener("click", () => {
+  const locateDropdown = document.getElementById("locateDropdown");
+  if (btnLocate && locateDropdown) {
+    btnLocate.addEventListener("click", (e) => {
+      e.stopPropagation();
+      // Đóng menu lớp dữ liệu nếu đang mở, tránh 2 menu chồng lên nhau
+      gisPopupMenu?.classList.remove("active");
+      btnFilter?.classList.remove("active");
+
+      btnLocate.classList.toggle("active");
+      locateDropdown.classList.toggle("active");
+    });
+
+    document.getElementById("btnLocateFlycam")?.addEventListener("click", () => {
       if (defaultRect) {
         viewer.camera.setView({ destination: defaultRect });
+      }
+      locateDropdown.classList.remove("active");
+      btnLocate.classList.remove("active");
+    });
+
+    document.getElementById("btnLocateParcel")?.addEventListener("click", () => {
+      if (parcelTool) {
+        viewer.camera.setView({ destination: parcelTool.bbox });
+      }
+      locateDropdown.classList.remove("active");
+      btnLocate.classList.remove("active");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!locateDropdown.contains(e.target) && e.target !== btnLocate && !btnLocate.contains(e.target)) {
+        locateDropdown.classList.remove("active");
+        btnLocate.classList.remove("active");
       }
     });
   }
 
-  const btnFilter = document.getElementById("btnFilter");
-  const gisPopupMenu = document.getElementById("gisPopupMenu");
   if (btnFilter && gisPopupMenu) {
     btnFilter.addEventListener("click", (e) => {
       e.stopPropagation();
+      // Đóng menu định vị nếu đang mở, tránh 2 menu chồng lên nhau
+      locateDropdown?.classList.remove("active");
+      btnLocate?.classList.remove("active");
+
       btnFilter.classList.toggle("active");
       gisPopupMenu.classList.toggle("active");
     });
