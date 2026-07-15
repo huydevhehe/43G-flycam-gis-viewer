@@ -383,6 +383,15 @@
   background: var(--danger-color);
 }
 
+/* Popup ranh giới thửa đất — tái dùng khung .elevation-popup, ghi đè phần khác biệt */
+.parcel-popup .popup-title {
+  color: #B45309; /* màu khác để phân biệt trực quan với popup điểm độ cao */
+}
+
+.parcel-popup .popup-body {
+  padding-bottom: 14px; /* không có .popup-actions nên cần padding-bottom thay thế */
+}
+
 /* ==========================================================================
    5. Hiệu ứng Hoạt cảnh & Chế độ Responsive (Mobile & Tablet)
    ========================================================================== */

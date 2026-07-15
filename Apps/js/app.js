@@ -2,7 +2,7 @@
 // không còn khai báo cứng trong code nữa — thêm dự án mới chỉ cần chạy process_all_tifs.js.
 let projectsConfig = {};
 let groupsConfig = [];
-let viewer, mapManager, measureTool, elevationTool, defaultRect;
+let viewer, mapManager, measureTool, elevationTool, parcelTool, defaultRect;
 
 function buildProjectsConfig(rows) {
   const config = {};
@@ -133,7 +133,7 @@ function attachStaticUiEvents() {
   if (btnLocate) {
     btnLocate.addEventListener("click", () => {
       if (defaultRect) {
-        viewer.camera.flyTo({ destination: defaultRect, duration: 2.0 });
+        viewer.camera.setView({ destination: defaultRect });
       }
     });
   }
@@ -260,6 +260,13 @@ function attachStaticUiEvents() {
       btnFinishMeasure.style.display = "none";
     });
   }
+
+  const chkParcelLayer = document.getElementById("chkParcelLayer");
+  if (chkParcelLayer) {
+    chkParcelLayer.addEventListener("change", (e) => {
+      parcelTool.setVisible(e.target.checked);
+    });
+  }
 }
 
 /**
@@ -289,6 +296,8 @@ async function init() {
     infoBox: false,
     selectionIndicator: false,
     creditContainer: document.createElement("div"),
+    requestRenderMode: true,
+    maximumRenderTimeChange: Infinity,
   });
 
   // 3. Cho camera bay tới bbox của nhóm đầu tiên khi load trang
@@ -297,7 +306,7 @@ async function init() {
     const bbox = groupBbox(firstGroup);
     if (bbox) {
       defaultRect = Cesium.Rectangle.fromDegrees(...bbox);
-      viewer.camera.flyTo({ destination: defaultRect, duration: 3.0 });
+      viewer.camera.setView({ destination: defaultRect });
     }
   }
 
@@ -311,6 +320,10 @@ async function init() {
       elevationTool.addProject(key, projectsConfig[key].elevationJson);
     }
   }
+
+  // Lớp ranh giới thửa đất — dữ liệu tĩnh phủ toàn khu vực, không thuộc dự án nào
+  parcelTool = new ParcelTool(viewer);
+  parcelTool.load("/Apps/SampleData/ThuaDat.geojson");
 
   // 5. Dựng UI danh sách dự án + gắn toàn bộ sự kiện
   renderProjectList(groupsConfig);

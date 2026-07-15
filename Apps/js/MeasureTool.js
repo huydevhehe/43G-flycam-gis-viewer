@@ -338,9 +338,12 @@ class MeasureTool {
 
           // Cập nhật tọa độ đỉnh mới
           measurement.points[idx] = cartesian;
-          
+
           // Cập nhật nhãn khoảng cách / diện tích thời gian thực
           measurement.updateLabels();
+
+          // requestRenderMode không tự biết CallbackProperty vừa đổi giá trị -> ép vẽ lại
+          this.viewer.scene.requestRender();
         }
       } else {
         // Đổi con trỏ chuột thành pointer khi rê vào đỉnh
@@ -504,7 +507,11 @@ class MeasureTool {
     this.handler.setInputAction((movement) => {
       if (this.points.length > 0) {
         const cartesian = this.pickPosition(movement.endPosition);
-        if (Cesium.defined(cartesian)) this.mousePoint = cartesian;
+        if (Cesium.defined(cartesian)) {
+          this.mousePoint = cartesian;
+          // requestRenderMode không tự biết mousePoint vừa đổi -> ép vẽ lại đường nháp
+          this.viewer.scene.requestRender();
+        }
       }
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
   }
@@ -560,7 +567,11 @@ class MeasureTool {
     this.handler.setInputAction((movement) => {
       if (this.points.length > 0) {
         const cartesian = this.pickPosition(movement.endPosition);
-        if (Cesium.defined(cartesian)) this.mousePoint = cartesian;
+        if (Cesium.defined(cartesian)) {
+          this.mousePoint = cartesian;
+          // requestRenderMode không tự biết mousePoint vừa đổi -> ép vẽ lại vùng nháp
+          this.viewer.scene.requestRender();
+        }
       }
     }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
   }
