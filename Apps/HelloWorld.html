@@ -77,6 +77,7 @@
     <div class="locate-dropdown" id="locateDropdown">
       <button class="locate-dropdown-item" id="btnLocateFlycam">Khu vực Flycam</button>
       <button class="locate-dropdown-item" id="btnLocateParcel">Khu vực thửa đất (Hà Nội)</button>
+      <button class="locate-dropdown-item" id="btnLocateRoad">Khu vực giao thông (Hà Nội)</button>
     </div>
 
     <!-- Popup Menu Lớp dữ liệu (Bấm nút phễu để hiện/ẩn) -->
@@ -97,6 +98,18 @@
             <input type="checkbox" id="chkParcelLayer" checked>
             <span class="custom-checkbox"></span>
             <span>Hiển thị ranh giới thửa đất</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Group Giao thông dạng vùng (lớp dữ liệu độc lập, phủ toàn khu vực, không thuộc dự án nào) -->
+      <div class="menu-section" style="margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 15px;">
+        <label class="section-title-static">Giao thông dạng vùng</label>
+        <div class="menu-options">
+          <label class="menu-checkbox-item">
+            <input type="checkbox" id="chkRoadLayer" checked>
+            <span class="custom-checkbox"></span>
+            <span>Hiển thị giao thông dạng vùng</span>
           </label>
         </div>
       </div>
@@ -174,6 +187,7 @@
     <script src="./js/MeasureTool.js"></script>
     <script src="./js/ElevationTool.js"></script>
     <script src="./js/ParcelTool.js"></script>
+    <script src="./js/RoadTool.js"></script>
     <script src="./js/app.js"></script>
   </body>
 </html>

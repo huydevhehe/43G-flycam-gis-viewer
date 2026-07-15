@@ -439,6 +439,15 @@
   padding-bottom: 14px; /* không có .popup-actions nên cần padding-bottom thay thế */
 }
 
+/* Popup giao thông dạng vùng — tái dùng khung .elevation-popup, ghi đè phần khác biệt */
+.road-popup .popup-title {
+  color: #0369A1; /* màu khác để phân biệt trực quan với popup thửa đất/điểm độ cao */
+}
+
+.road-popup .popup-body {
+  padding-bottom: 14px; /* không có .popup-actions nên cần padding-bottom thay thế */
+}
+
 /* ==========================================================================
    5. Hiệu ứng Hoạt cảnh & Chế độ Responsive (Mobile & Tablet)
    ========================================================================== */

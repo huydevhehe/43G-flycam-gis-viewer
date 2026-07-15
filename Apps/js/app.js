@@ -2,7 +2,7 @@
 // không còn khai báo cứng trong code nữa — thêm dự án mới chỉ cần chạy process_all_tifs.js.
 let projectsConfig = {};
 let groupsConfig = [];
-let viewer, mapManager, measureTool, elevationTool, parcelTool, defaultRect;
+let viewer, mapManager, measureTool, elevationTool, parcelTool, roadTool, defaultRect;
 
 function buildProjectsConfig(rows) {
   const config = {};
@@ -161,6 +161,14 @@ function attachStaticUiEvents() {
       btnLocate.classList.remove("active");
     });
 
+    document.getElementById("btnLocateRoad")?.addEventListener("click", () => {
+      if (roadTool) {
+        viewer.camera.setView({ destination: roadTool.bbox });
+      }
+      locateDropdown.classList.remove("active");
+      btnLocate.classList.remove("active");
+    });
+
     document.addEventListener("click", (e) => {
       if (!locateDropdown.contains(e.target) && e.target !== btnLocate && !btnLocate.contains(e.target)) {
         locateDropdown.classList.remove("active");
@@ -300,6 +308,13 @@ function attachStaticUiEvents() {
       parcelTool.setVisible(e.target.checked);
     });
   }
+
+  const chkRoadLayer = document.getElementById("chkRoadLayer");
+  if (chkRoadLayer) {
+    chkRoadLayer.addEventListener("change", (e) => {
+      roadTool.setVisible(e.target.checked);
+    });
+  }
 }
 
 /**
@@ -357,6 +372,10 @@ async function init() {
   // Lớp ranh giới thửa đất — dữ liệu tĩnh phủ toàn khu vực, không thuộc dự án nào
   parcelTool = new ParcelTool(viewer);
   parcelTool.load("/Apps/SampleData/ThuaDat.geojson");
+
+  // Lớp giao thông dạng vùng — dữ liệu tĩnh phủ toàn khu vực, không thuộc dự án nào
+  roadTool = new RoadTool(viewer);
+  roadTool.load("/Apps/SampleData/GiaoThong.geojson");
 
   // 5. Dựng UI danh sách dự án + gắn toàn bộ sự kiện
   renderProjectList(groupsConfig);
