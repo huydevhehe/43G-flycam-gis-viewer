@@ -76,8 +76,9 @@
     <!-- Menu chọn khu vực bay tới (Bấm nút Định vị để hiện/ẩn) -->
     <div class="locate-dropdown" id="locateDropdown">
       <button class="locate-dropdown-item" id="btnLocateFlycam">Khu vực Flycam</button>
-      <button class="locate-dropdown-item" id="btnLocateParcel">Khu vực thửa đất (Hà Nội)</button>
-      <button class="locate-dropdown-item" id="btnLocateRoad">Khu vực giao thông (Hà Nội)</button>
+      <!-- Tam tat theo yeu cau sep, cung voi layer ThuaDat/GiaoThong ben duoi -->
+      <!-- <button class="locate-dropdown-item" id="btnLocateParcel">Khu vực thửa đất (Hà Nội)</button> -->
+      <!-- <button class="locate-dropdown-item" id="btnLocateRoad">Khu vực giao thông (Hà Nội)</button> -->
     </div>
 
     <!-- Popup Menu Lớp dữ liệu (Bấm nút phễu để hiện/ẩn) -->
@@ -90,7 +91,11 @@
         </div>
       </div>
 
-      <!-- Group Ranh giới thửa đất (lớp dữ liệu độc lập, phủ toàn khu vực, không thuộc dự án nào) -->
+      <!--
+      Tam tat 2 layer Ranh gioi thua dat + Giao thong dang vung theo yeu cau sep.
+      Du lieu (ThuaDat.geojson, GiaoThong.geojson) va code (ParcelTool.js, RoadTool.js)
+      van con nguyen, chi can bo comment khoi day + trong app.js de bat lai.
+
       <div class="menu-section" style="margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 15px;">
         <label class="section-title-static">Ranh giới thửa đất</label>
         <div class="menu-options">
@@ -102,7 +107,6 @@
         </div>
       </div>
 
-      <!-- Group Giao thông dạng vùng (lớp dữ liệu độc lập, phủ toàn khu vực, không thuộc dự án nào) -->
       <div class="menu-section" style="margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 15px;">
         <label class="section-title-static">Giao thông dạng vùng</label>
         <div class="menu-options">
@@ -113,6 +117,7 @@
           </label>
         </div>
       </div>
+      -->
 
       <!-- Group Chọn bản đồ nền -->
       <div class="menu-section" style="margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 15px;">

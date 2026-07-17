@@ -369,13 +369,13 @@ async function init() {
     }
   }
 
-  // Lớp ranh giới thửa đất — dữ liệu tĩnh phủ toàn khu vực, không thuộc dự án nào
-  parcelTool = new ParcelTool(viewer);
-  parcelTool.load("/Apps/SampleData/ThuaDat.geojson");
-
-  // Lớp giao thông dạng vùng — dữ liệu tĩnh phủ toàn khu vực, không thuộc dự án nào
-  roadTool = new RoadTool(viewer);
-  roadTool.load("/Apps/SampleData/GiaoThong.geojson");
+  // Lớp ranh giới thửa đất + giao thông dạng vùng — tạm tắt hiển thị theo yêu cầu sếp.
+  // Dữ liệu (ThuaDat.geojson, GiaoThong.geojson) và code (ParcelTool.js, RoadTool.js)
+  // vẫn còn nguyên, chỉ cần bỏ comment 4 dòng dưới để bật lại.
+  // parcelTool = new ParcelTool(viewer);
+  // parcelTool.load("/Apps/SampleData/ThuaDat.geojson");
+  // roadTool = new RoadTool(viewer);
+  // roadTool.load("/Apps/SampleData/GiaoThong.geojson");
 
   // 5. Dựng UI danh sách dự án + gắn toàn bộ sự kiện
   renderProjectList(groupsConfig);
