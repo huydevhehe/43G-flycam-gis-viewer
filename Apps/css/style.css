@@ -448,6 +448,15 @@
   padding-bottom: 14px; /* không có .popup-actions nên cần padding-bottom thay thế */
 }
 
+/* Popup dùng chung cho 6 layer Tân Bình (VectorLayerTool) — tái dùng khung .elevation-popup */
+.vector-popup .popup-title {
+  color: #7C3AED; /* màu khác để phân biệt trực quan với các popup khác */
+}
+
+.vector-popup .popup-body {
+  padding-bottom: 14px; /* không có .popup-actions nên cần padding-bottom thay thế */
+}
+
 /* ==========================================================================
    5. Hiệu ứng Hoạt cảnh & Chế độ Responsive (Mobile & Tablet)
    ========================================================================== */

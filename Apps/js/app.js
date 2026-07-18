@@ -3,6 +3,7 @@
 let projectsConfig = {};
 let groupsConfig = [];
 let viewer, mapManager, measureTool, elevationTool, parcelTool, roadTool, defaultRect;
+let tanBinhLayers = {}; // { qhCnsdd, longDuong, tuyenDuong, timDuong, tenDuong, ranhB }
 
 function buildProjectsConfig(rows) {
   const config = {};
@@ -315,6 +316,24 @@ function attachStaticUiEvents() {
       roadTool.setVisible(e.target.checked);
     });
   }
+
+  // 6 checkbox lớp dữ liệu Tân Bình, ánh xạ id DOM -> key trong tanBinhLayers
+  const tanBinhCheckboxMap = {
+    chkQhCnsddLayer: "qhCnsdd",
+    chkLongDuongLayer: "longDuong",
+    chkTuyenDuongLayer: "tuyenDuong",
+    chkTimDuongLayer: "timDuong",
+    chkTenDuongLayer: "tenDuong",
+    chkRanhBLayer: "ranhB",
+  };
+  for (const [checkboxId, layerKey] of Object.entries(tanBinhCheckboxMap)) {
+    const checkbox = document.getElementById(checkboxId);
+    if (checkbox) {
+      checkbox.addEventListener("change", (e) => {
+        tanBinhLayers[layerKey]?.setVisible(e.target.checked);
+      });
+    }
+  }
 }
 
 /**
@@ -376,6 +395,95 @@ async function init() {
   // parcelTool.load("/Apps/SampleData/ThuaDat.geojson");
   // roadTool = new RoadTool(viewer);
   // roadTool.load("/Apps/SampleData/GiaoThong.geojson");
+
+  // 6 lớp dữ liệu quy hoạch/hạ tầng Tân Bình — dữ liệu tĩnh phủ toàn khu vực, không thuộc dự án nào.
+  // Dùng chung 1 class VectorLayerTool thay vì viết riêng 6 class (xem Apps/js/VectorLayerTool.js).
+  tanBinhLayers.qhCnsdd = new VectorLayerTool(viewer, {
+    id: "qhCnsdd",
+    hasPopup: true,
+    popupTitle: "Quy hoạch sử dụng đất",
+    popupFields: [
+      { field: "CNSDD_QD", label: "Chức năng quy hoạch" },
+      { field: "CNSDD_CD", label: "Mã chức năng" },
+      { field: "Dtich", label: "Diện tích", format: (v) => (v != null ? `${v.toFixed(1)} m²` : "-") },
+    ],
+    loadOptions: {
+      stroke: Cesium.Color.fromCssColorString("#A855F7"),
+      strokeWidth: 1,
+      fill: Cesium.Color.fromCssColorString("#A855F7").withAlpha(0.15),
+      clampToGround: true,
+    },
+  });
+  tanBinhLayers.qhCnsdd.load("/Apps/SampleData/QH_CNSDD_TanBinh.geojson");
+
+  tanBinhLayers.longDuong = new VectorLayerTool(viewer, {
+    id: "longDuong",
+    hasPopup: true,
+    popupTitle: "Lòng đường",
+    popupFields: [{ field: "TenDuong", label: "Tên đường" }],
+    loadOptions: {
+      stroke: Cesium.Color.fromCssColorString("#F97316"),
+      strokeWidth: 2,
+      clampToGround: true,
+    },
+  });
+  tanBinhLayers.longDuong.load("/Apps/SampleData/LongDuong_TanBinh.geojson");
+
+  tanBinhLayers.tuyenDuong = new VectorLayerTool(viewer, {
+    id: "tuyenDuong",
+    hasPopup: true,
+    popupTitle: "Tuyến đường",
+    popupFields: [
+      { field: "Shape_Leng", label: "Chiều dài", format: (v) => (v != null ? `${v.toFixed(1)} m` : "-") },
+    ],
+    loadOptions: {
+      stroke: Cesium.Color.fromCssColorString("#14B8A6"),
+      strokeWidth: 2,
+      clampToGround: true,
+    },
+  });
+  tanBinhLayers.tuyenDuong.load("/Apps/SampleData/TuyenDuong_TanBinh.geojson");
+
+  tanBinhLayers.timDuong = new VectorLayerTool(viewer, {
+    id: "timDuong",
+    hasPopup: true,
+    popupTitle: "Tim đường",
+    popupFields: [
+      { field: "Shape_Leng", label: "Chiều dài", format: (v) => (v != null ? `${v.toFixed(1)} m` : "-") },
+    ],
+    loadOptions: {
+      stroke: Cesium.Color.fromCssColorString("#EC4899"),
+      strokeWidth: 1,
+      clampToGround: true,
+    },
+  });
+  tanBinhLayers.timDuong.load("/Apps/SampleData/TimDuong_TanBinh.geojson");
+
+  tanBinhLayers.tenDuong = new VectorLayerTool(viewer, {
+    id: "tenDuong",
+    hasPopup: true,
+    popupTitle: "Tên đường",
+    popupFields: [{ field: "TenDuong", label: "Tên đường" }],
+    loadOptions: {
+      markerColor: Cesium.Color.fromCssColorString("#22C55E"),
+      markerSize: 24,
+      clampToGround: true,
+    },
+  });
+  tanBinhLayers.tenDuong.load("/Apps/SampleData/TenDuong_P.geojson");
+
+  // Chỉ vẽ viền ranh giới, không tô màu, không cần popup (chỉ có 1 polygon, không có thuộc tính hữu ích)
+  tanBinhLayers.ranhB = new VectorLayerTool(viewer, {
+    id: "ranhB",
+    hasPopup: false,
+    loadOptions: {
+      stroke: Cesium.Color.fromCssColorString("#DC2626"),
+      strokeWidth: 3,
+      fill: Cesium.Color.TRANSPARENT,
+      clampToGround: true,
+    },
+  });
+  tanBinhLayers.ranhB.load("/Apps/SampleData/RanhBTanHCM.geojson");
 
   // 5. Dựng UI danh sách dự án + gắn toàn bộ sự kiện
   renderProjectList(groupsConfig);
