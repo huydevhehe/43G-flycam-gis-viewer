@@ -40,12 +40,15 @@ async function main() {
     process.exit(1);
   }
 
-  // ST_Force2D bỏ toạ độ Z (dữ liệu gốc là PolygonZ/MultiLineStringZ do xuất từ CAD 3D) —
-  // gdal_rasterize chỉ cần X/Y, giữ Z lại không có lợi gì mà thêm rủi ro parse sai.
+  // ST_Force2D bỏ toạ độ Z (dữ liệu gốc là PolygonZ/MultiLineStringZ do xuất từ CAD 3D).
+  // ST_Transform sang EPSG:3857 (Web Mercator, đơn vị mét) — geom trong DB đang là WGS84
+  // (đơn vị độ); nếu xuất thẳng độ rồi rasterize với -tr tính theo mét, gdal_rasterize sẽ
+  // hiểu nhầm đơn vị (0.5 "độ" ≈ 55km, sai hoàn toàn) và ra ảnh chỉ 1 pixel. Mercator cũng
+  // khớp hệ toạ độ WebMercatorQuad dùng khi cắt tile ở bước sau.
   const hasColor = !FIXED_COLOR[layerKey];
   const columns = hasColor
-    ? "id, color, ST_AsGeoJSON(ST_Force2D(geom)) AS geojson"
-    : "id, ST_AsGeoJSON(ST_Force2D(geom)) AS geojson";
+    ? "id, color, ST_AsGeoJSON(ST_Force2D(ST_Transform(geom, 3857))) AS geojson"
+    : "id, ST_AsGeoJSON(ST_Force2D(ST_Transform(geom, 3857))) AS geojson";
   const result = await pool.query(`SELECT ${columns} FROM ${table}`);
 
   let fallbackCount = 0;
