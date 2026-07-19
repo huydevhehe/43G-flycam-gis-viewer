@@ -271,10 +271,12 @@ const throttle = (callback) => {
     }
 
     try {
+      // to_jsonb(t) - 'geom' loại bỏ cột hình học (WKB hex rất dài) khỏi JSON trả về —
+      // frontend chỉ cần thuộc tính để hiện popup, không cần geometry thô.
       let result;
       if (cfg.type === "polygon") {
         result = await pool.query(
-          `SELECT * FROM ${cfg.table}
+          `SELECT to_jsonb(t) - 'geom' AS props FROM ${cfg.table} t
            WHERE ST_Contains(geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))
            LIMIT 1`,
           [lonNum, latNum],
@@ -282,10 +284,11 @@ const throttle = (callback) => {
       } else {
         // Line/point: lấy đối tượng gần điểm click nhất trong bán kính 8 mét
         result = await pool.query(
-          `SELECT *, ST_Distance(geom::geography, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography) AS dist
-           FROM ${cfg.table}
-           WHERE ST_DWithin(geom::geography, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography, 8)
-           ORDER BY dist LIMIT 1`,
+          `SELECT to_jsonb(t) - 'geom' AS props
+           FROM ${cfg.table} t
+           WHERE ST_DWithin(t.geom::geography, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography, 8)
+           ORDER BY t.geom <-> ST_SetSRID(ST_MakePoint($1, $2), 4326)
+           LIMIT 1`,
           [lonNum, latNum],
         );
       }
@@ -293,7 +296,7 @@ const throttle = (callback) => {
         res.status(404).json({});
         return;
       }
-      res.json(result.rows[0]);
+      res.json(result.rows[0].props);
     } catch (err) {
       console.error("Lỗi query vector-hit:", err);
       res.status(500).end();
