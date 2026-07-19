@@ -248,6 +248,58 @@ const throttle = (callback) => {
     }
   });
 
+  // Bảng PostGIS chứa geometry thật của 6 layer Tân Bình, dùng để tra cứu khi người dùng
+  // click vào lớp raster (raster chỉ để hiển thị, không mang dữ liệu — xem VectorLayerTool.js).
+  // "table" lấy từ whitelist cố định bên dưới, không nội suy trực tiếp từ input người dùng.
+  const VECTOR_TABLES = {
+    qhCnsdd: { table: "vec_qh_cnsdd", type: "polygon" },
+    longDuong: { table: "vec_long_duong", type: "line" },
+    tuyenDuong: { table: "vec_tuyen_duong", type: "line" },
+    timDuong: { table: "vec_tim_duong", type: "line" },
+    tenDuong: { table: "vec_ten_duong", type: "point" },
+    ranhB: { table: "vec_ranh_b", type: "polygon" },
+  };
+
+  app.get("/api/vector-hit", async (req, res) => {
+    const { layer, lon, lat } = req.query;
+    const cfg = VECTOR_TABLES[layer];
+    const lonNum = Number(lon);
+    const latNum = Number(lat);
+    if (!cfg || !Number.isFinite(lonNum) || !Number.isFinite(latNum)) {
+      res.status(400).json({ error: "Thiếu layer/lon/lat hợp lệ" });
+      return;
+    }
+
+    try {
+      let result;
+      if (cfg.type === "polygon") {
+        result = await pool.query(
+          `SELECT * FROM ${cfg.table}
+           WHERE ST_Contains(geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))
+           LIMIT 1`,
+          [lonNum, latNum],
+        );
+      } else {
+        // Line/point: lấy đối tượng gần điểm click nhất trong bán kính 8 mét
+        result = await pool.query(
+          `SELECT *, ST_Distance(geom::geography, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography) AS dist
+           FROM ${cfg.table}
+           WHERE ST_DWithin(geom::geography, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography, 8)
+           ORDER BY dist LIMIT 1`,
+          [lonNum, latNum],
+        );
+      }
+      if (result.rows.length === 0) {
+        res.status(404).json({});
+        return;
+      }
+      res.json(result.rows[0]);
+    } catch (err) {
+      console.error("Lỗi query vector-hit:", err);
+      res.status(500).end();
+    }
+  });
+
   if (!production) {
     const iifeWorkersCache = new ContextCache(contexts.iifeWorkers);
     const iifeCache = createRoute(
