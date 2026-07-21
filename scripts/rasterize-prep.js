@@ -25,6 +25,11 @@ const FIXED_COLOR = {
   ranhB: [220, 38, 38],
 };
 
+// Layer chỉ cần vẽ ĐƯỜNG VIỀN, không tô đặc — gdal_rasterize với input Polygon sẽ tô kín toàn bộ
+// diện tích bên trong (không phân biệt viền/ruột), nên phải chuyển sang ST_Boundary (đường bao)
+// trước khi rasterize để nó cắt như một đường Line thay vì tô đặc cả vùng.
+const OUTLINE_ONLY = new Set(["ranhB"]);
+
 // Màu hồng chói dùng khi gặp mã ACI lạ (không có trong bảng 1-255) — cố tình chọn màu dễ
 // nhận ra bằng mắt để phát hiện lỗi tra bảng, không lẫn với màu ACI thật nào.
 const FALLBACK_COLOR = [255, 0, 255];
@@ -46,9 +51,12 @@ async function main() {
   // hiểu nhầm đơn vị (0.5 "độ" ≈ 55km, sai hoàn toàn) và ra ảnh chỉ 1 pixel. Mercator cũng
   // khớp hệ toạ độ WebMercatorQuad dùng khi cắt tile ở bước sau.
   const hasColor = !FIXED_COLOR[layerKey];
+  const geomExpr = OUTLINE_ONLY.has(layerKey)
+    ? "ST_Boundary(ST_Force2D(ST_Transform(geom, 3857)))"
+    : "ST_Force2D(ST_Transform(geom, 3857))";
   const columns = hasColor
-    ? "id, color, ST_AsGeoJSON(ST_Force2D(ST_Transform(geom, 3857))) AS geojson"
-    : "id, ST_AsGeoJSON(ST_Force2D(ST_Transform(geom, 3857))) AS geojson";
+    ? `id, color, ST_AsGeoJSON(${geomExpr}) AS geojson`
+    : `id, ST_AsGeoJSON(${geomExpr}) AS geojson`;
   const result = await pool.query(`SELECT ${columns} FROM ${table}`);
 
   let fallbackCount = 0;
