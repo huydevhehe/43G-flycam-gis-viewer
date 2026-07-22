@@ -627,3 +627,23 @@
   transform: rotate(-90deg); /* Quay mũi tên trỏ sang trái khi đóng */
 }
 
+/* Khối gộp nhiều dự án/nhiều layer (vd. 12 dự án Flycam, 3 layer Tân Bình) — cần cao hơn
+   120px mặc định và cuộn được nếu danh sách dài hơn nữa sau này */
+.project-layers-multi {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.project-item-row {
+  display: flex;
+  align-items: center;
+}
+
+.project-item-title {
+  cursor: pointer;
+}
+
+.project-item-title:hover {
+  color: #0060FF;
+}
+

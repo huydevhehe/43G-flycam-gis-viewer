@@ -22,10 +22,12 @@ function buildProjectsConfig(rows) {
   return config;
 }
 
-// Gom các dự án thành nhóm theo group_key (null = hiển thị riêng lẻ)
+// Gom các dự án thành nhóm theo group_key. Dự án chưa gán nhóm (group_key = null) được gộp
+// chung vào 1 khối duy nhất "Dự án Flycam" (isMultiProject) thay vì mỗi dự án 1 khối riêng —
+// menu đỡ dài dù có 12+ dự án, mỗi dự án vẫn giữ checkbox + bay-tới riêng bên trong khối đó.
 function buildGroups(rows) {
   const groupMap = new Map();
-  const ungrouped = [];
+  const ungroupedProjects = [];
   for (const row of rows) {
     if (row.group_key) {
       if (!groupMap.has(row.group_key)) {
@@ -33,10 +35,21 @@ function buildGroups(rows) {
       }
       groupMap.get(row.group_key).projects.push(row.project_key);
     } else {
-      ungrouped.push({ groupKey: null, title: row.title, projects: [row.project_key] });
+      ungroupedProjects.push({ key: row.project_key, title: row.title });
     }
   }
-  return [...groupMap.values(), ...ungrouped];
+
+  const groups = [...groupMap.values()];
+  if (ungroupedProjects.length > 0) {
+    groups.push({
+      groupKey: "__all_projects__",
+      title: "Dự án Flycam",
+      projects: ungroupedProjects.map((p) => p.key),
+      isMultiProject: true,
+      projectItems: ungroupedProjects,
+    });
+  }
+  return groups;
 }
 
 // Tính bbox bao phủ toàn bộ các project trong nhóm
@@ -52,7 +65,8 @@ function groupBbox(group) {
   return w === Infinity ? null : [w, s, e, n];
 }
 
-// Dựng động khối UI — 1 nút per nhóm (hoặc per dự án đơn lẻ)
+// Dựng động khối UI — 1 nút per nhóm (hoặc 1 khối gộp cho toàn bộ dự án chưa gán nhóm).
+// Mặc định TẤT CẢ đều thu gọn (class "collapsed") để menu gọn, bấm mũi tên mới xổ ra.
 function renderProjectList(groups) {
   const container = document.getElementById("projectList");
   if (!container) return;
@@ -61,7 +75,26 @@ function renderProjectList(groups) {
   for (const group of groups) {
     const id = group.groupKey || group.projects[0];
     const el = document.createElement("div");
-    el.className = "project-group";
+    el.className = "project-group collapsed";
+
+    const layersHtml = group.isMultiProject
+      ? group.projectItems
+          .map(
+            (p) => `
+              <label class="menu-checkbox-item project-item-row" data-project-key="${p.key}">
+                <input type="checkbox" id="flycam_${p.key}" checked>
+                <span class="custom-checkbox"></span>
+                <span class="project-item-title" data-fly-project="${p.key}" title="Click để bay tới dự án này">${p.title}</span>
+              </label>`,
+          )
+          .join("")
+      : `
+        <label class="menu-checkbox-item">
+          <input type="checkbox" id="flycam_group_${id}" checked>
+          <span class="custom-checkbox"></span>
+          <span>Ảnh Flycam</span>
+        </label>`;
+
     el.innerHTML = `
       <div class="project-header">
         <div class="project-info-click" data-group-id="${id}" title="Click để bay về vùng này">
@@ -70,19 +103,13 @@ function renderProjectList(groups) {
           </svg>
           <span>${group.title}</span>
         </div>
-        <div class="project-toggle-btn" title="Đóng/Mở lớp dữ liệu">
+        <div class="project-toggle-btn" title="Đóng/Mở danh sách">
           <svg class="arrow-icon" viewBox="0 0 24 24">
             <path d="M7 10l5 5 5-5z"/>
           </svg>
         </div>
       </div>
-      <div class="project-layers">
-        <label class="menu-checkbox-item">
-          <input type="checkbox" id="flycam_group_${id}" checked>
-          <span class="custom-checkbox"></span>
-          <span>Ảnh Flycam</span>
-        </label>
-      </div>
+      <div class="project-layers${group.isMultiProject ? " project-layers-multi" : ""}">${layersHtml}</div>
     `;
     container.appendChild(el);
   }
@@ -122,6 +149,29 @@ function attachProjectEvents() {
       });
     }
   }
+
+  // Khối gộp nhiều dự án (isMultiProject): mỗi dòng có checkbox + click-bay-tới riêng,
+  // độc lập với dự án khác trong cùng khối — không dùng chung 1 checkbox như group thường.
+  document.querySelectorAll(".project-item-row").forEach((row) => {
+    const projKey = row.getAttribute("data-project-key");
+    const cb = row.querySelector("input[type=checkbox]");
+    if (cb) {
+      cb.addEventListener("change", (e) => {
+        mapManager.setFlycamVisible(projKey, e.target.checked);
+      });
+    }
+  });
+
+  document.querySelectorAll("[data-fly-project]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      // preventDefault vì span này nằm trong <label> gắn với checkbox — không chặn thì
+      // click vào tên dự án để bay tới sẽ vô tình bật/tắt luôn checkbox theo hành vi mặc định.
+      e.preventDefault();
+      e.stopPropagation();
+      const projKey = el.getAttribute("data-fly-project");
+      mapManager.flyToProject(projKey);
+    });
+  });
 }
 
 // Gắn sự kiện cho các nút/UI tĩnh không phụ thuộc danh sách dự án
@@ -379,6 +429,7 @@ async function init() {
 
   // 4. Khởi tạo các module quản lý bản đồ
   mapManager = new MapManager(viewer, projectsConfig);
+  mapManager.setBaseMap("street"); // Mặc định bản đồ đường phố (khớp radio "checked" trong HTML)
   measureTool = new MeasureTool(viewer);
   elevationTool = new ElevationTool(viewer);
 

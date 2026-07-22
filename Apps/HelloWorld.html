@@ -120,24 +120,37 @@
       -->
 
       <!-- Group Dữ liệu quy hoạch/hạ tầng Tân Bình (lớp dữ liệu độc lập, phủ toàn khu vực, không thuộc dự án nào) -->
+      <!-- Mặc định thu gọn (collapsed), bấm mũi tên để xổ ra, giống khối danh sách dự án -->
       <div class="menu-section" style="margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 15px;">
         <label class="section-title-static">Dữ liệu Tân Bình</label>
-        <div class="menu-options">
-          <label class="menu-checkbox-item">
-            <input type="checkbox" id="chkQhCnsddLayer" checked>
-            <span class="custom-checkbox"></span>
-            <span>Quy hoạch sử dụng đất</span>
-          </label>
-          <label class="menu-checkbox-item">
-            <input type="checkbox" id="chkDuongLayer" checked>
-            <span class="custom-checkbox"></span>
-            <span>Đường</span>
-          </label>
-          <label class="menu-checkbox-item">
-            <input type="checkbox" id="chkRanhBLayer" checked>
-            <span class="custom-checkbox"></span>
-            <span>Ranh giới Tân Bình</span>
-          </label>
+        <div class="project-group collapsed" id="tanBinhGroup">
+          <div class="project-header" id="tanBinhGroupHeader">
+            <div class="project-info-click" style="cursor: default;">
+              <span>Các lớp dữ liệu</span>
+            </div>
+            <div class="project-toggle-btn" title="Đóng/Mở danh sách">
+              <svg class="arrow-icon" viewBox="0 0 24 24">
+                <path d="M7 10l5 5 5-5z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="project-layers project-layers-multi">
+            <label class="menu-checkbox-item">
+              <input type="checkbox" id="chkQhCnsddLayer" checked>
+              <span class="custom-checkbox"></span>
+              <span>Quy hoạch sử dụng đất</span>
+            </label>
+            <label class="menu-checkbox-item">
+              <input type="checkbox" id="chkDuongLayer" checked>
+              <span class="custom-checkbox"></span>
+              <span>Đường</span>
+            </label>
+            <label class="menu-checkbox-item">
+              <input type="checkbox" id="chkRanhBLayer" checked>
+              <span class="custom-checkbox"></span>
+              <span>Ranh giới Tân Bình</span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -146,14 +159,14 @@
         <label class="section-title-static">Chọn map cơ sở</label>
         <div class="menu-options">
           <label class="menu-radio-item">
-            <input type="radio" name="baseMapRadio" id="radioSatellite" value="satellite" checked>
+            <input type="radio" name="baseMapRadio" id="radioSatellite" value="satellite">
             <span class="custom-radio"></span>
-            <span>Ảnh Vệ tinh (Mặc định)</span>
+            <span>Ảnh Vệ tinh</span>
           </label>
           <label class="menu-radio-item">
-            <input type="radio" name="baseMapRadio" id="radioStreet" value="street">
+            <input type="radio" name="baseMapRadio" id="radioStreet" value="street" checked>
             <span class="custom-radio"></span>
-            <span>Bản đồ đường phố</span>
+            <span>Bản đồ đường phố (Mặc định)</span>
           </label>
         </div>
       </div>
