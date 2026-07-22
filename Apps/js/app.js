@@ -317,20 +317,20 @@ function attachStaticUiEvents() {
     });
   }
 
-  // 6 checkbox lớp dữ liệu Tân Bình, ánh xạ id DOM -> key trong tanBinhLayers
+  // Checkbox lớp dữ liệu Tân Bình, ánh xạ id DOM -> (các) key trong tanBinhLayers.
+  // "Đường" gộp chung 4 layer (lòng/tuyến/tim/tên đường) vào 1 nút duy nhất cho gọn UI.
   const tanBinhCheckboxMap = {
-    chkQhCnsddLayer: "qhCnsdd",
-    chkLongDuongLayer: "longDuong",
-    chkTuyenDuongLayer: "tuyenDuong",
-    chkTimDuongLayer: "timDuong",
-    chkTenDuongLayer: "tenDuong",
-    chkRanhBLayer: "ranhB",
+    chkQhCnsddLayer: ["qhCnsdd"],
+    chkDuongLayer: ["longDuong", "tuyenDuong", "timDuong", "tenDuong"],
+    chkRanhBLayer: ["ranhB"],
   };
-  for (const [checkboxId, layerKey] of Object.entries(tanBinhCheckboxMap)) {
+  for (const [checkboxId, layerKeys] of Object.entries(tanBinhCheckboxMap)) {
     const checkbox = document.getElementById(checkboxId);
     if (checkbox) {
       checkbox.addEventListener("change", (e) => {
-        tanBinhLayers[layerKey]?.setVisible(e.target.checked);
+        for (const layerKey of layerKeys) {
+          tanBinhLayers[layerKey]?.setVisible(e.target.checked);
+        }
       });
     }
   }
