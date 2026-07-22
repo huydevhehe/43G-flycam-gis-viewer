@@ -30,6 +30,17 @@ const FIXED_COLOR = {
 // trước khi rasterize để nó cắt như một đường Line thay vì tô đặc cả vùng.
 const OUTLINE_ONLY = new Set(["ranhB"]);
 
+// Đường/điểm gốc gần như không có bề rộng thật (Line ~0.5m, Point = 1 pixel) — rasterize thẳng
+// ra sợi chỉ mảnh, khó nhìn ở tỷ lệ bản đồ thực tế. "Phình" thêm bán kính (mét) trước khi
+// rasterize để thành dải/chấm tròn rõ ràng, dễ thấy hơn. Không áp dụng cho layer polygon
+// (qhCnsdd đã có diện tích thật) hay layer chỉ vẽ viền (ranhB, cố tình để mảnh).
+const BUFFER_METERS = {
+  longDuong: 1.5,
+  tuyenDuong: 1.5,
+  timDuong: 1,
+  tenDuong: 3,
+};
+
 // Màu hồng chói dùng khi gặp mã ACI lạ (không có trong bảng 1-255) — cố tình chọn màu dễ
 // nhận ra bằng mắt để phát hiện lỗi tra bảng, không lẫn với màu ACI thật nào.
 const FALLBACK_COLOR = [255, 0, 255];
@@ -51,9 +62,12 @@ async function main() {
   // hiểu nhầm đơn vị (0.5 "độ" ≈ 55km, sai hoàn toàn) và ra ảnh chỉ 1 pixel. Mercator cũng
   // khớp hệ toạ độ WebMercatorQuad dùng khi cắt tile ở bước sau.
   const hasColor = !FIXED_COLOR[layerKey];
-  const geomExpr = OUTLINE_ONLY.has(layerKey)
-    ? "ST_Boundary(ST_Force2D(ST_Transform(geom, 3857)))"
-    : "ST_Force2D(ST_Transform(geom, 3857))";
+  let geomExpr = "ST_Force2D(ST_Transform(geom, 3857))";
+  if (OUTLINE_ONLY.has(layerKey)) {
+    geomExpr = `ST_Boundary(${geomExpr})`;
+  } else if (BUFFER_METERS[layerKey]) {
+    geomExpr = `ST_Buffer(${geomExpr}, ${BUFFER_METERS[layerKey]})`;
+  }
   const columns = hasColor
     ? `id, color, ST_AsGeoJSON(${geomExpr}) AS geojson`
     : `id, ST_AsGeoJSON(${geomExpr}) AS geojson`;
