@@ -258,6 +258,7 @@ const throttle = (callback) => {
     timDuong: { table: "vec_tim_duong", type: "line" },
     tenDuong: { table: "vec_ten_duong", type: "point" },
     ranhB: { table: "vec_ranh_b", type: "polygon" },
+    loThua: { table: "vec_lo_thua", type: "polygon" },
   };
 
   app.get("/api/vector-hit", async (req, res) => {

@@ -17,12 +17,15 @@ const LAYER_TABLES = {
   timDuong: "vec_tim_duong",
   tenDuong: "vec_ten_duong",
   ranhB: "vec_ranh_b",
+  loThua: "vec_lo_thua",
 };
 
-// Layer không có dữ liệu màu ACI gốc (ranhB chỉ là 1 polygon ranh giới, không phải đối tượng CAD
-// có tô màu) — cho màu cố định. #DC2626 = rgb(220,38,38), khớp màu viền đã dùng trước đó.
+// Layer không có dữ liệu màu ACI gốc — cho màu cố định.
+// ranhB: #DC2626 (đỏ, đường viền). loThua: #FFD400 (vàng, khớp quy ước màu thửa đất
+// đã dùng trước đó cho ThuaDat.shp — dữ liệu lô thửa không xuất từ CAD nên không có cột Color).
 const FIXED_COLOR = {
   ranhB: [220, 38, 38],
+  loThua: [255, 212, 0],
 };
 
 // Layer chỉ cần vẽ ĐƯỜNG VIỀN, không tô đặc — gdal_rasterize với input Polygon sẽ tô kín toàn bộ

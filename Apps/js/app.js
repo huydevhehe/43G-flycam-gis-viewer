@@ -373,6 +373,7 @@ function attachStaticUiEvents() {
     chkQhCnsddLayer: ["qhCnsdd"],
     chkDuongLayer: ["longDuong", "tuyenDuong", "timDuong", "tenDuong"],
     chkRanhBLayer: ["ranhB"],
+    chkLoThuaLayer: ["loThua"],
   };
   for (const [checkboxId, layerKeys] of Object.entries(tanBinhCheckboxMap)) {
     const checkbox = document.getElementById(checkboxId);
@@ -505,6 +506,20 @@ async function init() {
     hasPopup: false,
   });
   tanBinhLayers.ranhB.load();
+
+  // Lớp lô thửa (to28 — "tờ 28") — dữ liệu lô/thửa đất, không phải CAD nên không có màu ACI,
+  // dùng màu vàng cố định (khớp quy ước ThuaDat trước đây).
+  tanBinhLayers.loThua = new VectorLayerTool(viewer, {
+    id: "loThua",
+    hasPopup: true,
+    popupTitle: "Lô thửa",
+    popupFields: [
+      { field: "page_num", label: "Tờ số" },
+      { field: "plot_num", label: "Thửa số" },
+      { field: "area", label: "Diện tích", format: (v) => (v != null ? `${v.toFixed(1)} m²` : "-") },
+    ],
+  });
+  tanBinhLayers.loThua.load();
 
   // 5. Dựng UI danh sách dự án + gắn toàn bộ sự kiện
   renderProjectList(groupsConfig);
