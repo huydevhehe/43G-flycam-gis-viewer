@@ -21,17 +21,25 @@ const LAYER_TABLES = {
 };
 
 // Layer không có dữ liệu màu ACI gốc — cho màu cố định.
-// ranhB: #DC2626 (đỏ, đường viền). loThua: #FFD400 (vàng, khớp quy ước màu thửa đất
-// đã dùng trước đó cho ThuaDat.shp — dữ liệu lô thửa không xuất từ CAD nên không có cột Color).
+// ranhB: #DC2626 (đỏ, đường viền). loThua: vàng nhạt tô nền (viền đậm vẽ riêng, xem OUTLINE_OVERLAY)
+// — dữ liệu lô thửa không xuất từ CAD nên không có cột Color.
 const FIXED_COLOR = {
   ranhB: [220, 38, 38],
-  loThua: [255, 212, 0],
+  loThua: [255, 230, 140],
 };
 
 // Layer chỉ cần vẽ ĐƯỜNG VIỀN, không tô đặc — gdal_rasterize với input Polygon sẽ tô kín toàn bộ
 // diện tích bên trong (không phân biệt viền/ruột), nên phải chuyển sang ST_Boundary (đường bao)
 // trước khi rasterize để nó cắt như một đường Line thay vì tô đặc cả vùng.
 const OUTLINE_ONLY = new Set(["ranhB"]);
+
+// Layer polygon liền kề nhau (thửa đất) — nếu chỉ tô đặc 1 màu thì các thửa giáp ranh dính
+// thành 1 khối, không phân biệt được từng lô. Vẽ thêm 1 lớp đường viền (ST_Boundary, buffer
+// mỏng cho rõ nét) đè lên SAU lớp tô nền — gdal_rasterize burn feature theo thứ tự trong file,
+// feature sau đè lên feature trước tại cùng pixel, nên viền luôn nổi trên nền.
+const OUTLINE_OVERLAY = {
+  loThua: { color: [204, 102, 0], bufferMeters: 0.4 },
+};
 
 // Đường/điểm gốc gần như không có bề rộng thật (Line ~0.5m, Point = 1 pixel) — rasterize thẳng
 // ra sợi chỉ mảnh, khó nhìn ở tỷ lệ bản đồ thực tế. "Phình" thêm bán kính (mét) trước khi
@@ -94,6 +102,21 @@ async function main() {
       properties: { R: rgb[0], G: rgb[1], B: rgb[2] },
     };
   });
+
+  const overlay = OUTLINE_OVERLAY[layerKey];
+  if (overlay) {
+    const outlineExpr = `ST_Buffer(ST_Boundary(ST_Force2D(ST_Transform(geom, 3857))), ${overlay.bufferMeters})`;
+    const outlineResult = await pool.query(
+      `SELECT ST_AsGeoJSON(${outlineExpr}) AS geojson FROM ${table}`,
+    );
+    for (const row of outlineResult.rows) {
+      features.push({
+        type: "Feature",
+        geometry: JSON.parse(row.geojson),
+        properties: { R: overlay.color[0], G: overlay.color[1], B: overlay.color[2] },
+      });
+    }
+  }
 
   fs.writeFileSync(outputPath, JSON.stringify({ type: "FeatureCollection", features }));
 
