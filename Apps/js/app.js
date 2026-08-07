@@ -555,9 +555,11 @@ async function init() {
     hasPopup: true,
     popupTitle: "Lô thửa",
     popupFields: [
+      { field: "objectid", label: "Mã đối tượng" },
       { field: "page_num", label: "Tờ số" },
       { field: "plot_num", label: "Thửa số" },
       { field: "area", label: "Diện tích", format: (v) => (v != null ? `${v.toFixed(1)} m²` : "-") },
+      { field: "chu_vi", label: "Chu vi", format: (v) => (v != null ? `${v.toFixed(1)} m` : "-") },
     ],
   });
   tanBinhLayers.loThua.load();
