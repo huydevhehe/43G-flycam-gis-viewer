@@ -409,7 +409,10 @@ function attachStaticUiEvents() {
   // "Đường" gộp chung 4 layer (lòng/tuyến/tim/tên đường) vào 1 nút duy nhất cho gọn UI.
   const tanBinhCheckboxMap = {
     chkQhCnsddLayer: ["qhCnsdd"],
-    chkDuongLayer: ["longDuong", "tuyenDuong", "timDuong", "tenDuong"],
+    chkLongDuongLayer: ["longDuong"],
+    chkTuyenDuongLayer: ["tuyenDuong"],
+    chkTimDuongLayer: ["timDuong"],
+    chkTenDuongLayer: ["tenDuong"],
     chkRanhBLayer: ["ranhB"],
     chkLoThuaLayer: ["loThua"],
   };
