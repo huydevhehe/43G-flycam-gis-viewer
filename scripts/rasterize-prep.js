@@ -46,14 +46,14 @@ const OUTLINE_OVERLAY = {
 // rasterize để thành dải/chấm tròn rõ ràng, dễ thấy hơn. Không áp dụng cho layer polygon
 // (qhCnsdd đã có diện tích thật).
 // ranhB: đường bao chỉ 1 pixel bị nội suy cubic lúc cắt tile trộn với nền trong suốt -> ra
-// vệt đỏ nhạt, đứt quãng; buffer 2.5m (dải ~5m) để luôn đậm và liền mạch ở mọi mức zoom.
+// vệt đỏ nhạt, đứt quãng; buffer 5m (dải ~10m) để luôn đậm và liền mạch ở mọi mức zoom.
 // Áp dụng SAU ST_Boundary với layer OUTLINE_ONLY, nên 2 cấu hình này kết hợp được với nhau.
 const BUFFER_METERS = {
   longDuong: 1.5,
   tuyenDuong: 1.5,
   timDuong: 1,
   tenDuong: 3,
-  ranhB: 2.5,
+  ranhB: 5,
 };
 
 // Màu hồng chói dùng khi gặp mã ACI lạ (không có trong bảng 1-255) — cố tình chọn màu dễ
