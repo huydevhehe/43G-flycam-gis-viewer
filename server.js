@@ -278,7 +278,7 @@ const throttle = (callback) => {
       let result;
       if (cfg.type === "polygon") {
         result = await pool.query(
-          `SELECT to_jsonb(t) - 'geom' AS props, ST_AsGeoJSON(t.geom) AS geom_json FROM ${cfg.table} t
+          `SELECT to_jsonb(t) - 'geom' AS props, ST_AsGeoJSON(ST_Force2D(t.geom)) AS geom_json FROM ${cfg.table} t
            WHERE ST_Contains(geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))
            LIMIT 1`,
           [lonNum, latNum],
@@ -286,7 +286,7 @@ const throttle = (callback) => {
       } else {
         // Line/point: lấy đối tượng gần điểm click nhất trong bán kính 8 mét
         result = await pool.query(
-          `SELECT to_jsonb(t) - 'geom' AS props, ST_AsGeoJSON(t.geom) AS geom_json
+          `SELECT to_jsonb(t) - 'geom' AS props, ST_AsGeoJSON(ST_Force2D(t.geom)) AS geom_json
            FROM ${cfg.table} t
            WHERE ST_DWithin(t.geom::geography, ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography, 8)
            ORDER BY t.geom <-> ST_SetSRID(ST_MakePoint($1, $2), 4326)
