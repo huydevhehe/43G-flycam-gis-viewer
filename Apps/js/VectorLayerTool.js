@@ -28,6 +28,7 @@ class VectorLayerTool {
     this.selectedPosition = null; // Cartesian3 của điểm vừa click, dùng neo popup theo camera
     this.userVisible = true; // Mặc định bật hiển thị từ UI
     this.listenersSetup = false;
+    this.highlightEntities = []; // Entity viền nổi bật đang vẽ cho đối tượng vừa click
 
     if (config.hasPopup) {
       this.initPopupDOM();
@@ -134,6 +135,7 @@ class VectorLayerTool {
         return;
       }
       this.selectedPosition = cartesian;
+      this.showHighlight(data.__geometry);
       this.showPopup(data);
     } catch (err) {
       console.error(`[${this.config.id}] Lỗi khi tra cứu feature:`, err);
@@ -175,8 +177,86 @@ class VectorLayerTool {
    */
   hidePopup() {
     this.selectedPosition = null;
+    this.clearHighlight();
     if (this.popupElement) {
       this.popupElement.style.display = "none";
+    }
+  }
+
+  /**
+   * Xoá viền nổi bật (nếu có) của lần click trước đó.
+   */
+  clearHighlight() {
+    for (const entity of this.highlightEntities) {
+      this.viewer.entities.remove(entity);
+    }
+    this.highlightEntities = [];
+  }
+
+  /**
+   * Vẽ viền nổi bật đúng hình dạng thật của đối tượng vừa click (Polygon/Line/Point) —
+   * đè lên trên ảnh raster để người dùng thấy rõ đang xem đúng đối tượng nào, không chỉ có popup
+   * chữ. Dùng Cesium.Entity (không phải raster), nhưng chỉ 1 đối tượng/lần click nên không lag.
+   * @param {object} geometry GeoJSON geometry lấy từ ST_AsGeoJSON (toạ độ [lon, lat])
+   */
+  showHighlight(geometry) {
+    this.clearHighlight();
+    if (!geometry) return;
+
+    const color = Cesium.Color.fromCssColorString("#00e5ff");
+
+    const addPolygonRing = (ring) => {
+      this.highlightEntities.push(
+        this.viewer.entities.add({
+          polygon: {
+            hierarchy: Cesium.Cartesian3.fromDegreesArray(ring.flat()),
+            material: color.withAlpha(0.25),
+            outline: true,
+            outlineColor: color,
+            outlineWidth: 3,
+          },
+        }),
+      );
+    };
+    const addLine = (line) => {
+      this.highlightEntities.push(
+        this.viewer.entities.add({
+          polyline: {
+            positions: Cesium.Cartesian3.fromDegreesArray(line.flat()),
+            width: 5,
+            material: color,
+          },
+        }),
+      );
+    };
+    const addPoint = (pt) => {
+      this.highlightEntities.push(
+        this.viewer.entities.add({
+          position: Cesium.Cartesian3.fromDegrees(pt[0], pt[1]),
+          point: { pixelSize: 14, color, outlineColor: Cesium.Color.WHITE, outlineWidth: 2 },
+        }),
+      );
+    };
+
+    switch (geometry.type) {
+      case "Polygon":
+        addPolygonRing(geometry.coordinates[0]);
+        break;
+      case "MultiPolygon":
+        geometry.coordinates.forEach((poly) => addPolygonRing(poly[0]));
+        break;
+      case "LineString":
+        addLine(geometry.coordinates);
+        break;
+      case "MultiLineString":
+        geometry.coordinates.forEach(addLine);
+        break;
+      case "Point":
+        addPoint(geometry.coordinates);
+        break;
+      case "MultiPoint":
+        geometry.coordinates.forEach(addPoint);
+        break;
     }
   }
 
