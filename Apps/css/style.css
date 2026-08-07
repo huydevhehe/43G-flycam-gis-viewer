@@ -639,6 +639,34 @@
   align-items: center;
 }
 
+/* Ô tổng bật/tắt toàn bộ dự án — dính ở đầu danh sách để vẫn bấm được khi cuộn */
+.project-select-all {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  margin-bottom: 2px;
+}
+
+/* Trạng thái "lẫn lộn" (chỉ vài dự án đang bật): hiện dấu gạch ngang thay vì dấu tick */
+.project-select-all.is-indeterminate .custom-checkbox {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.project-select-all.is-indeterminate .custom-checkbox:after {
+  display: block;
+  left: 3px;
+  top: 7px;
+  width: 9px;
+  height: 0;
+  border: solid white;
+  border-width: 0 0 2px 0;
+  transform: none;
+}
+
 .project-item-title {
   cursor: pointer;
 }

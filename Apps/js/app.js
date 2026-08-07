@@ -77,8 +77,17 @@ function renderProjectList(groups) {
     const el = document.createElement("div");
     el.className = "project-group collapsed";
 
+    // Ô tổng đứng đầu khối gộp: 1 cú click bật/tắt toàn bộ dự án bên dưới.
+    const selectAllHtml = `
+      <label class="menu-checkbox-item project-select-all">
+        <input type="checkbox" id="flycam_all_${id}" checked>
+        <span class="custom-checkbox"></span>
+        <span>Tất cả dự án</span>
+      </label>`;
+
     const layersHtml = group.isMultiProject
-      ? group.projectItems
+      ? selectAllHtml +
+        group.projectItems
           .map(
             (p) => `
               <label class="menu-checkbox-item project-item-row" data-project-key="${p.key}">
@@ -160,6 +169,35 @@ function attachProjectEvents() {
         mapManager.setFlycamVisible(projKey, e.target.checked);
       });
     }
+  });
+
+  // Ô tổng của khối gộp: bật/tắt hết dự án con, đồng thời tự đồng bộ ngược lại —
+  // tắt lẻ vài dự án thì ô tổng chuyển sang trạng thái "lẫn lộn" (indeterminate).
+  document.querySelectorAll(".project-select-all").forEach((row) => {
+    const master = row.querySelector("input[type=checkbox]");
+    const list = row.closest(".project-layers");
+    const children = list ? [...list.querySelectorAll(".project-item-row input[type=checkbox]")] : [];
+    if (!master || children.length === 0) return;
+
+    const syncMaster = () => {
+      const on = children.filter((cb) => cb.checked).length;
+      master.checked = on === children.length;
+      master.indeterminate = on > 0 && on < children.length;
+      row.classList.toggle("is-indeterminate", master.indeterminate);
+    };
+
+    master.addEventListener("change", () => {
+      const visible = master.checked;
+      for (const cb of children) {
+        cb.checked = visible;
+        mapManager.setFlycamVisible(cb.closest(".project-item-row").getAttribute("data-project-key"), visible);
+      }
+      master.indeterminate = false;
+      row.classList.remove("is-indeterminate");
+    });
+
+    for (const cb of children) cb.addEventListener("change", syncMaster);
+    syncMaster();
   });
 
   document.querySelectorAll("[data-fly-project]").forEach((el) => {
