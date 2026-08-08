@@ -203,17 +203,18 @@ class VectorLayerTool {
     this.clearHighlight();
     if (!geometry) return;
 
-    const color = Cesium.Color.fromCssColorString("#00e5ff");
+    const color = Cesium.Color.fromCssColorString("#ff2d2d");
 
+    // Chỉ vẽ ĐƯỜNG VIỀN (polyline riêng, không dùng polygon.material) — không tô/đổi màu vùng
+    // bên trong, giữ nguyên màu ACI gốc, chỉ làm nổi bật khung của đối tượng vừa click.
     const addPolygonRing = (ring) => {
       this.highlightEntities.push(
         this.viewer.entities.add({
-          polygon: {
-            hierarchy: Cesium.Cartesian3.fromDegreesArray(ring.flat()),
-            material: color.withAlpha(0.25),
-            outline: true,
-            outlineColor: color,
-            outlineWidth: 3,
+          polyline: {
+            positions: Cesium.Cartesian3.fromDegreesArray(ring.flat()),
+            width: 5,
+            material: color,
+            clampToGround: false,
           },
         }),
       );
@@ -233,7 +234,7 @@ class VectorLayerTool {
       this.highlightEntities.push(
         this.viewer.entities.add({
           position: Cesium.Cartesian3.fromDegrees(pt[0], pt[1]),
-          point: { pixelSize: 14, color, outlineColor: Cesium.Color.WHITE, outlineWidth: 2 },
+          point: { pixelSize: 16, color: Cesium.Color.TRANSPARENT, outlineColor: color, outlineWidth: 4 },
         }),
       );
     };
