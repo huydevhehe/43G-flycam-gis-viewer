@@ -426,6 +426,18 @@ function attachStaticUiEvents() {
       });
     }
   }
+
+  // "Ảnh trực giao" — 1 ô tích đại diện cho TOÀN BỘ dự án Flycam, thay cho khối danh sách
+  // 12 dự án đã tạm ẩn trong HelloWorld.html. Duyệt thẳng projectsConfig (nguồn từ database)
+  // nên thêm/bớt dự án sau này tự động theo, không phải sửa lại danh sách cứng ở đây.
+  const chkOrtho = document.getElementById("chkOrthoLayer");
+  if (chkOrtho) {
+    chkOrtho.addEventListener("change", (e) => {
+      for (const projKey in projectsConfig) {
+        mapManager.setFlycamVisible(projKey, e.target.checked);
+      }
+    });
+  }
 }
 
 /**

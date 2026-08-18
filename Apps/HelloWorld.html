@@ -83,13 +83,18 @@
 
     <!-- Popup Menu Lớp dữ liệu (Bấm nút phễu để hiện/ẩn) -->
     <div class="gis-popup-menu" id="gisPopupMenu">
-      <!-- Group Ẩn/Hiện lớp dữ liệu theo từng dự án -->
+      <!--
+      Tam an khoi danh sach 12 du an Flycam theo yeu cau sep — thay bang 1 o tich duy nhat
+      "Anh truc giao" trong khoi "Du lieu Tan Binh" ben duoi (bat/tat ca cum cung luc).
+      Du lieu va code van con nguyen (renderProjectList/attachProjectEvents trong app.js,
+      renderProjectList tu thoat som khi khong tim thay #projectList) — bo comment khoi nay
+      la danh sach 12 du an + nut "Tat ca du an" hien lai nhu cu, khong can sua gi them.
+
       <div class="menu-section">
         <label class="section-title-static">Dự án & Lớp dữ liệu</label>
-        <div class="project-list" id="projectList">
-          <!-- Danh sách dự án được app.js tự dựng động từ API /api/projects (database) -->
-        </div>
+        <div class="project-list" id="projectList"></div>
       </div>
+      -->
 
       <!--
       Tam tat 2 layer Ranh gioi thua dat + Giao thong dang vung theo yeu cau sep.
@@ -169,6 +174,13 @@
               <input type="checkbox" id="chkLoThuaLayer" checked>
               <span class="custom-checkbox"></span>
               <span>Lô thửa</span>
+            </label>
+            <!-- Đại diện cho TOÀN BỘ dự án Flycam (ảnh trực giao) — thay cho khối danh sách
+                 12 dự án đã tạm ẩn ở trên: tích là hiện hết, bỏ tích là ẩn hết -->
+            <label class="menu-checkbox-item">
+              <input type="checkbox" id="chkOrthoLayer" checked>
+              <span class="custom-checkbox"></span>
+              <span>Ảnh trực giao</span>
             </label>
           </div>
         </div>
