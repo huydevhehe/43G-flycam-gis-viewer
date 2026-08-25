@@ -368,9 +368,10 @@ VectorLayerTool.globalListenerSetup = false;
 // nếu không nó sẽ "ăn" hết mọi cú click vào lô thửa. Layer không có tên ở đây tự động xếp cuối.
 VectorLayerTool.HIT_PRIORITY = ["loThua", "tenDuong", "timDuong", "tuyenDuong", "longDuong", "qhCnsdd"];
 
-// Hệ số làm mờ layer đang có đối tượng được chọn — 0.5 = còn nửa độ đậm: vẫn thấy rõ màu
-// của layer nhưng nhìn xuyên được xuống ảnh nền. Chỉnh số này để mờ nhiều/ít hơn.
-VectorLayerTool.DIM_FACTOR = 0.5;
+// Hệ số làm mờ layer đang có đối tượng được chọn — 0.75 = chỉ mờ nhẹ: vẫn giữ gần như nguyên
+// màu của layer, chỉ hé thấy ảnh nền bên dưới. Để 0.5 thì bị trong quá, sếp không chịu.
+// Chỉnh số này để mờ nhiều/ít hơn: càng nhỏ càng trong.
+VectorLayerTool.DIM_FACTOR = 0.75;
 
 // Gán toàn cục để sử dụng trong app.js
 window.VectorLayerTool = VectorLayerTool;
