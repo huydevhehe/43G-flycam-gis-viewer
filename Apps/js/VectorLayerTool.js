@@ -32,6 +32,7 @@ class VectorLayerTool {
 
     if (config.hasPopup) {
       this.initPopupDOM();
+      VectorLayerTool.instances.push(this);
     }
   }
 
@@ -56,9 +57,15 @@ class VectorLayerTool {
     this.imageryLayer = this.viewer.imageryLayers.addImageryProvider(provider);
     this.imageryLayer.show = this.userVisible;
 
-    if (this.config.hasPopup && !this.listenersSetup) {
-      this.setupListeners();
-      this.listenersSetup = true;
+    if (this.config.hasPopup) {
+      VectorLayerTool.setupGlobalListener(this.viewer);
+      if (!this.listenersSetup) {
+        // Popup neo theo toạ độ thế giới nên phải tính lại vị trí mỗi khung hình
+        this.viewer.scene.postRender.addEventListener(() => {
+          this.updatePopupPosition();
+        });
+        this.listenersSetup = true;
+      }
     }
   }
 
@@ -99,47 +106,83 @@ class VectorLayerTool {
   }
 
   /**
-   * Thiết lập các bộ lắng nghe sự kiện
+   * Đăng ký DUY NHẤT 1 bộ bắt sự kiện click cho toàn bộ layer (gọi bao nhiêu lần cũng chỉ tạo
+   * 1 lần). Trước đây mỗi layer tự bắt click riêng, nên 1 cú click làm cả 6 layer cùng vẽ viền
+   * đỏ + mở popup đè lên nhau — người dùng thấy 2-3 viền đỏ và tưởng viền vẽ sai đối tượng.
+   * Giờ 1 click chỉ chọn ra ĐÚNG 1 đối tượng theo thứ tự ưu tiên trong HIT_PRIORITY.
    */
-  setupListeners() {
-    const handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
-    handler.setInputAction((click) => {
-      if (!this.imageryLayer.show) return;
+  static setupGlobalListener(viewer) {
+    if (VectorLayerTool.globalListenerSetup) return;
+    VectorLayerTool.globalListenerSetup = true;
 
-      const cartesian = this.viewer.camera.pickEllipsoid(click.position, this.viewer.scene.globe.ellipsoid);
+    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+    handler.setInputAction((click) => {
+      const cartesian = viewer.camera.pickEllipsoid(click.position, viewer.scene.globe.ellipsoid);
       if (!cartesian) {
-        this.hidePopup();
+        VectorLayerTool.clearAll();
         return;
       }
       const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
       const lon = Cesium.Math.toDegrees(cartographic.longitude);
       const lat = Cesium.Math.toDegrees(cartographic.latitude);
-      this.queryFeature(lon, lat, cartesian);
+      VectorLayerTool.handleClick(lon, lat, cartesian);
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  }
 
-    this.viewer.scene.postRender.addEventListener(() => {
-      this.updatePopupPosition();
+  /**
+   * Dọn sạch viền nổi bật + popup của TẤT CẢ layer, không riêng layer nào.
+   */
+  static clearAll() {
+    for (const layer of VectorLayerTool.instances) {
+      layer.hidePopup();
+    }
+  }
+
+  /**
+   * Hỏi song song mọi layer đang bật xem điểm click rơi vào đối tượng nào, rồi chỉ hiện đúng
+   * 1 kết quả theo thứ tự ưu tiên: đối tượng càng nhỏ/càng cụ thể càng được ưu tiên (lô thửa
+   * hơn đường, đường hơn vùng quy hoạch phủ rộng).
+   */
+  static async handleClick(lon, lat, cartesian) {
+    const active = VectorLayerTool.instances.filter((layer) => layer.imageryLayer?.show);
+    const results = await Promise.all(active.map((layer) => layer.fetchFeature(lon, lat)));
+
+    let best = null;
+    let bestRank = Infinity;
+    active.forEach((layer, i) => {
+      if (!results[i]) return;
+      let rank = VectorLayerTool.HIT_PRIORITY.indexOf(layer.config.id);
+      if (rank === -1) rank = VectorLayerTool.HIT_PRIORITY.length;
+      if (rank < bestRank) {
+        bestRank = rank;
+        best = { layer, data: results[i] };
+      }
     });
+
+    VectorLayerTool.clearAll();
+    if (!best) return;
+
+    best.layer.selectedPosition = cartesian;
+    best.layer.showHighlight(best.data.__geometry);
+    best.layer.showPopup(best.data);
   }
 
   /**
    * Hỏi API /api/vector-hit xem điểm vừa click có rơi vào feature nào của layer này không —
    * dữ liệu thật (PostGIS) chỉ được truy vấn lúc này, không tải sẵn trong trình duyệt.
+   * Chỉ TRẢ VỀ dữ liệu, việc quyết định hiện layer nào do handleClick lo.
+   * @returns {Promise<object|null>} Thuộc tính + __geometry của feature trúng, null nếu trượt
    */
-  async queryFeature(lon, lat, cartesian) {
+  async fetchFeature(lon, lat) {
     try {
       const response = await fetch(`/api/vector-hit?layer=${this.config.id}&lon=${lon}&lat=${lat}`);
+      if (!response.ok) return null;
       const data = await response.json();
-      if (!data || Object.keys(data).length === 0) {
-        this.hidePopup();
-        return;
-      }
-      this.selectedPosition = cartesian;
-      this.showHighlight(data.__geometry);
-      this.showPopup(data);
+      if (!data || Object.keys(data).length === 0) return null;
+      return data;
     } catch (err) {
       console.error(`[${this.config.id}] Lỗi khi tra cứu feature:`, err);
-      this.hidePopup();
+      return null;
     }
   }
 
@@ -281,6 +324,15 @@ class VectorLayerTool {
     }
   }
 }
+
+// Mọi layer có popup, dùng chung 1 bộ bắt click (xem setupGlobalListener).
+VectorLayerTool.instances = [];
+VectorLayerTool.globalListenerSetup = false;
+
+// Thứ tự ưu tiên khi 1 điểm click trúng nhiều layer cùng lúc — đối tượng cụ thể/nhỏ đứng
+// trước, vùng phủ rộng đứng sau. Vùng quy hoạch bao trùm cả chục lô thửa nên luôn xếp cuối,
+// nếu không nó sẽ "ăn" hết mọi cú click vào lô thửa. Layer không có tên ở đây tự động xếp cuối.
+VectorLayerTool.HIT_PRIORITY = ["loThua", "tenDuong", "timDuong", "tuyenDuong", "longDuong", "qhCnsdd"];
 
 // Gán toàn cục để sử dụng trong app.js
 window.VectorLayerTool = VectorLayerTool;
