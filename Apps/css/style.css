@@ -639,6 +639,73 @@
   align-items: center;
 }
 
+/* Thanh kéo độ đậm các lớp dữ liệu — nằm dưới danh sách checkbox trong khối Tân Bình.
+   Cố tình đặt NGOÀI .project-layers: danh sách đó cuộn khi dài, để thanh kéo bên trong thì
+   phải cuộn xuống mới thấy. Đổi lại phải tự ẩn khi khối đang thu gọn (rule ngay bên dưới). */
+.layer-opacity-row {
+  margin: 0 12px 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.project-group.collapsed .layer-opacity-row {
+  display: none;
+}
+
+.layer-opacity-row > label {
+  display: block;
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.layer-opacity-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.layer-opacity-control span {
+  font-size: 12px;
+  color: #6b7280;
+  min-width: 34px; /* Chốt bề rộng để số nhảy 9% -> 100% không làm thanh kéo giật */
+  text-align: right;
+}
+
+/* Thanh kéo tự vẽ lại cho khớp giao diện — mặc định của trình duyệt mỗi máy một kiểu */
+.layer-opacity-control input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.15);
+  outline: none;
+  cursor: pointer;
+}
+
+.layer-opacity-control input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.layer-opacity-control input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
 /* Ô tổng bật/tắt toàn bộ dự án — dính ở đầu danh sách để vẫn bấm được khi cuộn */
 .project-select-all {
   position: sticky;

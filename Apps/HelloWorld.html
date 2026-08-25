@@ -183,6 +183,15 @@
               <span>Ảnh trực giao</span>
             </label>
           </div>
+          <!-- Thanh kéo độ mờ: kéo liên tục (step=1), áp cho các lớp Tân Bình đang tích.
+               Ảnh trực giao không theo thanh này để luôn giữ nguyên làm ảnh nền. -->
+          <div class="layer-opacity-row">
+            <label for="rangeLayerOpacity">Độ đậm lớp dữ liệu</label>
+            <div class="layer-opacity-control">
+              <input type="range" id="rangeLayerOpacity" min="0" max="100" step="1" value="100">
+              <span id="layerOpacityValue">100%</span>
+            </div>
+          </div>
         </div>
       </div>
 

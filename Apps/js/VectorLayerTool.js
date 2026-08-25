@@ -29,6 +29,8 @@ class VectorLayerTool {
     this.userVisible = true; // Mặc định bật hiển thị từ UI
     this.listenersSetup = false;
     this.highlightEntities = []; // Entity viền nổi bật đang vẽ cho đối tượng vừa click
+    this.baseAlpha = 1; // Độ đậm do người dùng chọn bằng thanh kéo (1 = đậm nhất)
+    this.dimmed = false; // Đang tạm mờ vì có đối tượng được chọn hay không
 
     if (config.hasPopup) {
       this.initPopupDOM();
@@ -56,6 +58,7 @@ class VectorLayerTool {
 
     this.imageryLayer = this.viewer.imageryLayers.addImageryProvider(provider);
     this.imageryLayer.show = this.userVisible;
+    this.applyAlpha();
 
     if (this.config.hasPopup) {
       VectorLayerTool.setupGlobalListener(this.viewer);
@@ -201,6 +204,35 @@ class VectorLayerTool {
   }
 
   /**
+   * Đặt độ đậm của layer theo thanh kéo trên menu (liên tục, không theo nấc).
+   * @param {number} alpha 0 = trong suốt hoàn toàn, 1 = đậm nhất
+   */
+  setOpacity(alpha) {
+    this.baseAlpha = alpha;
+    this.applyAlpha();
+  }
+
+  /**
+   * Tạm làm mờ layer khi đang có đối tượng được chọn, để nhìn xuyên xuống ảnh nền bên dưới
+   * (nền vàng lô thửa che kín bản đồ, chọn 1 thửa mà không thấy hiện trạng dưới đó thì vô nghĩa).
+   * Chỉ giảm còn DIM_FACTOR lần độ đậm hiện tại — vẫn thấy màu layer, không biến mất hẳn.
+   * @param {boolean} dimmed
+   */
+  setDimmed(dimmed) {
+    this.dimmed = dimmed;
+    this.applyAlpha();
+  }
+
+  /**
+   * Áp độ đậm cuối cùng lên layer ảnh = độ đậm người dùng chọn, nhân thêm hệ số mờ nếu đang
+   * có đối tượng được chọn. Gom vào 1 chỗ để thanh kéo và việc chọn đối tượng không đè lên nhau.
+   */
+  applyAlpha() {
+    if (!this.imageryLayer) return;
+    this.imageryLayer.alpha = this.dimmed ? this.baseAlpha * VectorLayerTool.DIM_FACTOR : this.baseAlpha;
+  }
+
+  /**
    * Hiện popup với dữ liệu thuộc tính trả về từ API (JSON phẳng, field đã đúng tên cột Postgres)
    */
   showPopup(data) {
@@ -234,6 +266,7 @@ class VectorLayerTool {
       this.viewer.entities.remove(entity);
     }
     this.highlightEntities = [];
+    this.setDimmed(false); // Hết chọn thì trả layer về đúng độ đậm của thanh kéo
   }
 
   /**
@@ -245,6 +278,7 @@ class VectorLayerTool {
   showHighlight(geometry) {
     this.clearHighlight();
     if (!geometry) return;
+    this.setDimmed(true);
 
     const color = Cesium.Color.fromCssColorString("#ff2d2d");
 
@@ -333,6 +367,10 @@ VectorLayerTool.globalListenerSetup = false;
 // trước, vùng phủ rộng đứng sau. Vùng quy hoạch bao trùm cả chục lô thửa nên luôn xếp cuối,
 // nếu không nó sẽ "ăn" hết mọi cú click vào lô thửa. Layer không có tên ở đây tự động xếp cuối.
 VectorLayerTool.HIT_PRIORITY = ["loThua", "tenDuong", "timDuong", "tuyenDuong", "longDuong", "qhCnsdd"];
+
+// Hệ số làm mờ layer đang có đối tượng được chọn — 0.5 = còn nửa độ đậm: vẫn thấy rõ màu
+// của layer nhưng nhìn xuyên được xuống ảnh nền. Chỉnh số này để mờ nhiều/ít hơn.
+VectorLayerTool.DIM_FACTOR = 0.5;
 
 // Gán toàn cục để sử dụng trong app.js
 window.VectorLayerTool = VectorLayerTool;

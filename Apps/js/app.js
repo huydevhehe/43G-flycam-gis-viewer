@@ -427,6 +427,21 @@ function attachStaticUiEvents() {
     }
   }
 
+  // Thanh kéo độ đậm — áp cho toàn bộ lớp vector Tân Bình (lớp nào đang tắt tích thì không
+  // thấy gì, bật lại là đã sẵn đúng độ đậm). Dùng sự kiện "input" chứ không phải "change" để
+  // bản đồ đổi mượt ngay trong lúc kéo, không phải thả tay mới thấy.
+  const rangeOpacity = document.getElementById("rangeLayerOpacity");
+  const opacityValue = document.getElementById("layerOpacityValue");
+  if (rangeOpacity) {
+    rangeOpacity.addEventListener("input", (e) => {
+      const percent = Number(e.target.value);
+      if (opacityValue) opacityValue.innerText = `${percent}%`;
+      for (const key in tanBinhLayers) {
+        tanBinhLayers[key].setOpacity(percent / 100);
+      }
+    });
+  }
+
   // "Ảnh trực giao" — 1 ô tích đại diện cho TOÀN BỘ dự án Flycam, thay cho khối danh sách
   // 12 dự án đã tạm ẩn trong HelloWorld.html. Duyệt thẳng projectsConfig (nguồn từ database)
   // nên thêm/bớt dự án sau này tự động theo, không phải sửa lại danh sách cứng ở đây.
