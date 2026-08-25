@@ -80,8 +80,10 @@ if command -v ogr2ogr >/dev/null; then
     chmod 777 "$OUT_DIR" "$OUT_DIR/qh_cnsdd_shp"
   fi
   $OGR_PREFIX ogr2ogr -f GeoJSON "$OUT_DIR/qh_cnsdd.geojson" "$PGCONN" "$TABLE"
-  # Shapefile cat ten cot con 10 ky tu va tach thanh nhieu file -> gom vao thu muc rieng
-  $OGR_PREFIX ogr2ogr -f "ESRI Shapefile" "$OUT_DIR/qh_cnsdd_shp" "$PGCONN" "$TABLE"
+  # Shapefile cat ten cot con 10 ky tu va tach thanh nhieu file -> gom vao thu muc rieng.
+  # ENCODING=UTF-8 bat buoc phai co: mac dinh shapefile ghi bang ISO-8859-1 (Tay Au), chu
+  # tieng Viet co dau nhu "Dat kho bai" se bi hong khi mo bang MapInfo/ArcGIS.
+  $OGR_PREFIX ogr2ogr -f "ESRI Shapefile" -lco ENCODING=UTF-8 "$OUT_DIR/qh_cnsdd_shp" "$PGCONN" "$TABLE"
   if [ -n "$OGR_PREFIX" ]; then
     chmod 755 "$OUT_DIR" "$OUT_DIR/qh_cnsdd_shp"
     chown -R "$(id -u):$(id -g)" "$OUT_DIR" 2>/dev/null || true
