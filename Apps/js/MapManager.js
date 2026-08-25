@@ -75,6 +75,18 @@ class MapManager {
   }
 
   /**
+   * Đặt độ đậm lớp ảnh flycam của dự án cụ thể (thanh kéo của mục "Ảnh trực giao" trên menu)
+   * @param {string} projKey Mã định danh dự án
+   * @param {number} alpha 0 = trong suốt hoàn toàn, 1 = đậm nhất
+   */
+  setFlycamAlpha(projKey, alpha) {
+    const proj = this.projects[projKey];
+    if (proj && proj.flycamLayer) {
+      proj.flycamLayer.alpha = alpha;
+    }
+  }
+
+  /**
    * Di chuyển camera đến vùng bao phủ của dự án cụ thể
    * @param {string} projKey Mã định danh dự án
    */

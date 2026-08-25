@@ -427,20 +427,25 @@ function attachStaticUiEvents() {
     }
   }
 
-  // Thanh kéo độ đậm — áp cho toàn bộ lớp vector Tân Bình (lớp nào đang tắt tích thì không
-  // thấy gì, bật lại là đã sẵn đúng độ đậm). Dùng sự kiện "input" chứ không phải "change" để
-  // bản đồ đổi mượt ngay trong lúc kéo, không phải thả tay mới thấy.
-  const rangeOpacity = document.getElementById("rangeLayerOpacity");
-  const opacityValue = document.getElementById("layerOpacityValue");
-  if (rangeOpacity) {
-    rangeOpacity.addEventListener("input", (e) => {
+  // Thanh kéo độ đậm RIÊNG của từng lớp — mỗi ô tích có 1 thanh của chính nó, không dùng
+  // chung nữa. Lớp nào chỉnh lớp đó, không ảnh hưởng lớp khác. Dùng sự kiện "input" chứ không
+  // phải "change" để bản đồ đổi mượt ngay trong lúc kéo, không phải thả tay mới thấy.
+  document.querySelectorAll(".layer-opacity").forEach((slider) => {
+    const layerKey = slider.getAttribute("data-layer");
+    const valueLabel = slider.parentElement.querySelector(".layer-opacity-value");
+    slider.addEventListener("input", (e) => {
       const percent = Number(e.target.value);
-      if (opacityValue) opacityValue.innerText = `${percent}%`;
-      for (const key in tanBinhLayers) {
-        tanBinhLayers[key].setOpacity(percent / 100);
+      if (valueLabel) valueLabel.innerText = `${percent}%`;
+      if (layerKey === "__ortho") {
+        // Ảnh trực giao là 1 mục tích nhưng gồm cả chục lớp ảnh flycam bên dưới
+        for (const projKey in projectsConfig) {
+          mapManager.setFlycamAlpha(projKey, percent / 100);
+        }
+      } else {
+        tanBinhLayers[layerKey]?.setOpacity(percent / 100);
       }
     });
-  }
+  });
 
   // "Ảnh trực giao" — 1 ô tích đại diện cho TOÀN BỘ dự án Flycam, thay cho khối danh sách
   // 12 dự án đã tạm ẩn trong HelloWorld.html. Duyệt thẳng projectsConfig (nguồn từ database)

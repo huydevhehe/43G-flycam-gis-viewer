@@ -639,36 +639,29 @@
   align-items: center;
 }
 
-/* Thanh kéo độ đậm các lớp dữ liệu — nằm dưới danh sách checkbox trong khối Tân Bình.
-   Cố tình đặt NGOÀI .project-layers: danh sách đó cuộn khi dài, để thanh kéo bên trong thì
-   phải cuộn xuống mới thấy. Đổi lại phải tự ẩn khi khối đang thu gọn (rule ngay bên dưới). */
-.layer-opacity-row {
-  margin: 0 12px 10px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
+/* Mỗi lớp dữ liệu là 1 khối: ô tích + thanh kéo độ đậm riêng của lớp đó ngay bên dưới.
+   Có đường kẻ mảnh phân cách để 8 cặp ô tích/thanh kéo không dính thành một mảng rối mắt. */
+.layer-item {
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.project-group.collapsed .layer-opacity-row {
-  display: none;
-}
-
-.layer-opacity-row > label {
-  display: block;
-  font-size: 13px;
-  color: #374151;
-  margin-bottom: 6px;
+.layer-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .layer-opacity-control {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-left: 27px; /* Thụt vào thẳng hàng với chữ, né ô tích bên trái */
 }
 
-.layer-opacity-control span {
-  font-size: 12px;
+.layer-opacity-value {
+  font-size: 11px;
   color: #6b7280;
-  min-width: 34px; /* Chốt bề rộng để số nhảy 9% -> 100% không làm thanh kéo giật */
+  min-width: 32px; /* Chốt bề rộng để số nhảy 9% -> 100% không làm thanh kéo giật */
   text-align: right;
 }
 

@@ -139,57 +139,99 @@
               </svg>
             </div>
           </div>
+          <!-- Mỗi lớp 1 khối riêng: ô tích + thanh kéo độ đậm của CHÍNH lớp đó (kéo liên tục,
+               step=1). data-layer khớp key trong tanBinhLayers ở app.js; riêng "__ortho" là
+               ảnh trực giao, app.js hiểu là áp cho toàn bộ dự án Flycam. -->
           <div class="project-layers project-layers-multi">
-            <label class="menu-checkbox-item">
-              <input type="checkbox" id="chkQhCnsddLayer" checked>
-              <span class="custom-checkbox"></span>
-              <span>Quy hoạch sử dụng đất</span>
-            </label>
-            <label class="menu-checkbox-item">
-              <input type="checkbox" id="chkLongDuongLayer" checked>
-              <span class="custom-checkbox"></span>
-              <span>Lòng đường</span>
-            </label>
-            <label class="menu-checkbox-item">
-              <input type="checkbox" id="chkTuyenDuongLayer" checked>
-              <span class="custom-checkbox"></span>
-              <span>Tuyến đường</span>
-            </label>
-            <label class="menu-checkbox-item">
-              <input type="checkbox" id="chkTimDuongLayer" checked>
-              <span class="custom-checkbox"></span>
-              <span>Tim đường</span>
-            </label>
-            <label class="menu-checkbox-item">
-              <input type="checkbox" id="chkTenDuongLayer" checked>
-              <span class="custom-checkbox"></span>
-              <span>Tên đường</span>
-            </label>
-            <label class="menu-checkbox-item">
-              <input type="checkbox" id="chkRanhBLayer" checked>
-              <span class="custom-checkbox"></span>
-              <span>Ranh giới Tân Bình</span>
-            </label>
-            <label class="menu-checkbox-item">
-              <input type="checkbox" id="chkLoThuaLayer" checked>
-              <span class="custom-checkbox"></span>
-              <span>Lô thửa</span>
-            </label>
+            <div class="layer-item">
+              <label class="menu-checkbox-item">
+                <input type="checkbox" id="chkQhCnsddLayer" checked>
+                <span class="custom-checkbox"></span>
+                <span>Quy hoạch sử dụng đất</span>
+              </label>
+              <div class="layer-opacity-control">
+                <input type="range" class="layer-opacity" data-layer="qhCnsdd" min="0" max="100" step="1" value="100">
+                <span class="layer-opacity-value">100%</span>
+              </div>
+            </div>
+            <div class="layer-item">
+              <label class="menu-checkbox-item">
+                <input type="checkbox" id="chkLongDuongLayer" checked>
+                <span class="custom-checkbox"></span>
+                <span>Lòng đường</span>
+              </label>
+              <div class="layer-opacity-control">
+                <input type="range" class="layer-opacity" data-layer="longDuong" min="0" max="100" step="1" value="100">
+                <span class="layer-opacity-value">100%</span>
+              </div>
+            </div>
+            <div class="layer-item">
+              <label class="menu-checkbox-item">
+                <input type="checkbox" id="chkTuyenDuongLayer" checked>
+                <span class="custom-checkbox"></span>
+                <span>Tuyến đường</span>
+              </label>
+              <div class="layer-opacity-control">
+                <input type="range" class="layer-opacity" data-layer="tuyenDuong" min="0" max="100" step="1" value="100">
+                <span class="layer-opacity-value">100%</span>
+              </div>
+            </div>
+            <div class="layer-item">
+              <label class="menu-checkbox-item">
+                <input type="checkbox" id="chkTimDuongLayer" checked>
+                <span class="custom-checkbox"></span>
+                <span>Tim đường</span>
+              </label>
+              <div class="layer-opacity-control">
+                <input type="range" class="layer-opacity" data-layer="timDuong" min="0" max="100" step="1" value="100">
+                <span class="layer-opacity-value">100%</span>
+              </div>
+            </div>
+            <div class="layer-item">
+              <label class="menu-checkbox-item">
+                <input type="checkbox" id="chkTenDuongLayer" checked>
+                <span class="custom-checkbox"></span>
+                <span>Tên đường</span>
+              </label>
+              <div class="layer-opacity-control">
+                <input type="range" class="layer-opacity" data-layer="tenDuong" min="0" max="100" step="1" value="100">
+                <span class="layer-opacity-value">100%</span>
+              </div>
+            </div>
+            <div class="layer-item">
+              <label class="menu-checkbox-item">
+                <input type="checkbox" id="chkRanhBLayer" checked>
+                <span class="custom-checkbox"></span>
+                <span>Ranh giới Tân Bình</span>
+              </label>
+              <div class="layer-opacity-control">
+                <input type="range" class="layer-opacity" data-layer="ranhB" min="0" max="100" step="1" value="100">
+                <span class="layer-opacity-value">100%</span>
+              </div>
+            </div>
+            <div class="layer-item">
+              <label class="menu-checkbox-item">
+                <input type="checkbox" id="chkLoThuaLayer" checked>
+                <span class="custom-checkbox"></span>
+                <span>Lô thửa</span>
+              </label>
+              <div class="layer-opacity-control">
+                <input type="range" class="layer-opacity" data-layer="loThua" min="0" max="100" step="1" value="100">
+                <span class="layer-opacity-value">100%</span>
+              </div>
+            </div>
             <!-- Đại diện cho TOÀN BỘ dự án Flycam (ảnh trực giao) — thay cho khối danh sách
                  12 dự án đã tạm ẩn ở trên: tích là hiện hết, bỏ tích là ẩn hết -->
-            <label class="menu-checkbox-item">
-              <input type="checkbox" id="chkOrthoLayer" checked>
-              <span class="custom-checkbox"></span>
-              <span>Ảnh trực giao</span>
-            </label>
-          </div>
-          <!-- Thanh kéo độ mờ: kéo liên tục (step=1), áp cho các lớp Tân Bình đang tích.
-               Ảnh trực giao không theo thanh này để luôn giữ nguyên làm ảnh nền. -->
-          <div class="layer-opacity-row">
-            <label for="rangeLayerOpacity">Độ đậm lớp dữ liệu</label>
-            <div class="layer-opacity-control">
-              <input type="range" id="rangeLayerOpacity" min="0" max="100" step="1" value="100">
-              <span id="layerOpacityValue">100%</span>
+            <div class="layer-item">
+              <label class="menu-checkbox-item">
+                <input type="checkbox" id="chkOrthoLayer" checked>
+                <span class="custom-checkbox"></span>
+                <span>Ảnh trực giao</span>
+              </label>
+              <div class="layer-opacity-control">
+                <input type="range" class="layer-opacity" data-layer="__ortho" min="0" max="100" step="1" value="100">
+                <span class="layer-opacity-value">100%</span>
+              </div>
             </div>
           </div>
         </div>
