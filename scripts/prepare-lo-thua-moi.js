@@ -97,6 +97,15 @@ function layGiaTriDau(props, ...cacTen) {
   return null;
 }
 
+// Ép về chuỗi thống nhất cho các trường định danh (so_to, so_thua, loai_dat, so_gcn) — dữ
+// liệu gốc lẫn lộn kiểu giữa các thửa: có thửa "so_thua" là số nguyên (17), có thửa lại là
+// chuỗi vì bị TÁCH THỬA ("302/314" = thửa 302 tách thành 314). ogr2ogr quét cả file để đoán
+// kiểu cột, gặp lẫn lộn số/chuỗi/null thì tự chọn kiểu "json" và vỡ ngay khi gặp "302/314"
+// (không phải JSON hợp lệ). Ép String() ngay từ đầu để cột luôn là text, không cho ogr2ogr đoán.
+function epChuoi(v) {
+  return v == null ? null : String(v);
+}
+
 // Diện tích hình học tự tính từ toạ độ thật (công thức shoelace, xấp xỉ phẳng — đủ chính xác
 // cho khu vực nhỏ như 1 thửa đất, tránh phụ thuộc vào cột diện tích có thể thiếu ở nhiều file).
 function dienTichHinhHoc(geometry) {
@@ -161,14 +170,14 @@ function main() {
         geometry: f.geometry,
         properties: {
           id: idMoi++,
-          so_to: layGiaTriDau(p, "so_to", "page_num"),
-          so_thua: layGiaTriDau(p, "so_thua", "so_thua_update", "plot_num"),
-          loai_dat: layGiaTriDau(p, "loai_dat", "ma_loai_dat_update", "ma_loai_dat_cad", "land_type"),
+          so_to: epChuoi(layGiaTriDau(p, "so_to", "page_num")),
+          so_thua: epChuoi(layGiaTriDau(p, "so_thua", "so_thua_update", "plot_num")),
+          loai_dat: epChuoi(layGiaTriDau(p, "loai_dat", "ma_loai_dat_update", "ma_loai_dat_cad", "land_type")),
           chu_su_dung: chuSuDung.value,
           chu_su_dung_raw: chuSuDungGoc, // giữ bản gốc để đối chiếu nếu bảng sửa font đoán sai
           dia_chi: diaChi.value,
           dia_chi_raw: diaChiGoc,
-          so_gcn: layGiaTriDau(p, "so_gcn"),
+          so_gcn: epChuoi(layGiaTriDau(p, "so_gcn")),
           dien_tich_ho_so_m2: dienTichHoSo != null ? Number(dienTichHoSo) : null,
           dien_tich_hinh_hoc_m2: Math.round(dienTichHinhHoc(f.geometry) * 10) / 10,
           ngay_bien_dong_moi_nhat: layGiaTriDau(p, "ngay_bien_dong_moi_nhat"),
