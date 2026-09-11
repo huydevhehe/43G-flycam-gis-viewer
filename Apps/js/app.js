@@ -414,7 +414,7 @@ function attachStaticUiEvents() {
     chkTimDuongLayer: ["timDuong"],
     chkTenDuongLayer: ["tenDuong"],
     chkRanhBLayer: ["ranhB"],
-    chkLoThuaLayer: ["loThua"],
+    chkLoThuaLayer: ["loThuaMoi"], // Trỏ sang bộ mới — "loThua" cũ đang tạm ẩn, xem phía trên
   };
   for (const [checkboxId, layerKeys] of Object.entries(tanBinhCheckboxMap)) {
     const checkbox = document.getElementById(checkboxId);
@@ -580,21 +580,50 @@ async function init() {
   });
   tanBinhLayers.ranhB.load();
 
-  // Lớp lô thửa (to28 — "tờ 28") — dữ liệu lô/thửa đất, không phải CAD nên không có màu ACI,
-  // dùng màu vàng cố định (khớp quy ước ThuaDat trước đây).
-  tanBinhLayers.loThua = new VectorLayerTool(viewer, {
-    id: "loThua",
+  // Lớp lô thửa CŨ (to28 — chỉ 1 tờ, 169 thửa) — tạm ẩn theo yêu cầu sếp, thay bằng bộ mới
+  // "loThuaMoi" bên dưới (229 tờ, đầy đủ tên chủ đất/địa chỉ). Bảng vec_lo_thua trong DB vẫn
+  // còn nguyên, chỉ cần bỏ comment 6 dòng này (và comment lại khối loThuaMoi) để dùng lại.
+  // tanBinhLayers.loThua = new VectorLayerTool(viewer, {
+  //   id: "loThua",
+  //   hasPopup: true,
+  //   popupTitle: "Lô thửa",
+  //   popupFields: [
+  //     { field: "objectid", label: "Mã đối tượng" },
+  //     { field: "page_num", label: "Tờ số" },
+  //     { field: "plot_num", label: "Thửa số" },
+  //     { field: "area", label: "Diện tích", format: (v) => (v != null ? `${v.toFixed(1)} m²` : "-") },
+  //     { field: "chu_vi", label: "Chu vi", format: (v) => (v != null ? `${v.toFixed(1)} m` : "-") },
+  //   ],
+  // });
+  // tanBinhLayers.loThua.load();
+
+  // Lớp lô thửa MỚI — 229 tờ bản đồ AI biên tập, đã gộp/chuẩn hoá/sửa font qua
+  // scripts/prepare-lo-thua-moi.js. Tên cột khác hẳn bộ cũ (so_to/so_thua/chu_su_dung...)
+  // vì nguồn dữ liệu khác hẳn, không tái dùng popupFields của "loThua".
+  // dia_chi/chu_su_dung là DỮ LIỆU CÁ NHÂN THẬT — xem ghi chú bảo mật ở đầu server.js nếu có.
+  tanBinhLayers.loThuaMoi = new VectorLayerTool(viewer, {
+    id: "loThuaMoi",
     hasPopup: true,
     popupTitle: "Lô thửa",
     popupFields: [
-      { field: "objectid", label: "Mã đối tượng" },
-      { field: "page_num", label: "Tờ số" },
-      { field: "plot_num", label: "Thửa số" },
-      { field: "area", label: "Diện tích", format: (v) => (v != null ? `${v.toFixed(1)} m²` : "-") },
-      { field: "chu_vi", label: "Chu vi", format: (v) => (v != null ? `${v.toFixed(1)} m` : "-") },
+      { field: "so_to", label: "Tờ số" },
+      { field: "so_thua", label: "Thửa số" },
+      { field: "chu_su_dung", label: "Chủ sử dụng" },
+      { field: "dia_chi", label: "Địa chỉ" },
+      { field: "so_gcn", label: "Số GCN" },
+      {
+        field: "dien_tich_ho_so_m2",
+        label: "Diện tích (hồ sơ)",
+        format: (v) => (v != null ? `${v.toFixed(1)} m²` : "-"),
+      },
+      {
+        field: "dien_tich_hinh_hoc_m2",
+        label: "Diện tích (đo đạc)",
+        format: (v) => (v != null ? `${v.toFixed(1)} m²` : "-"),
+      },
     ],
   });
-  tanBinhLayers.loThua.load();
+  tanBinhLayers.loThuaMoi.load();
 
   // 5. Dựng UI danh sách dự án + gắn toàn bộ sự kiện
   renderProjectList(groupsConfig);

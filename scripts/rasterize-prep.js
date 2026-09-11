@@ -18,6 +18,10 @@ const LAYER_TABLES = {
   tenDuong: "vec_ten_duong",
   ranhB: "vec_ranh_b",
   loThua: "vec_lo_thua",
+  // Bộ lô thửa mới (229 tờ bản đồ AI biên tập, xem scripts/prepare-lo-thua-moi.js) — thay thế
+  // "loThua" cũ (chỉ có 169 thửa của 1 tờ). Giữ song song cả 2 bảng trong DB, không xoá bảng
+  // cũ — chỉ đổi UI sang hiện "loThuaMoi" (xem app.js, khối tanBinhLayers.loThua bị comment).
+  loThuaMoi: "vec_lo_thua_moi",
 };
 
 // Layer không có dữ liệu màu ACI gốc — cho màu cố định.
@@ -26,6 +30,7 @@ const LAYER_TABLES = {
 const FIXED_COLOR = {
   ranhB: [220, 38, 38],
   loThua: [255, 230, 140],
+  loThuaMoi: [255, 230, 140], // Giữ đúng màu vàng của loThua cũ để giao diện không đổi tông
 };
 
 // Layer chỉ cần vẽ ĐƯỜNG VIỀN, không tô đặc — gdal_rasterize với input Polygon sẽ tô kín toàn bộ
@@ -39,6 +44,7 @@ const OUTLINE_ONLY = new Set(["ranhB"]);
 // feature sau đè lên feature trước tại cùng pixel, nên viền luôn nổi trên nền.
 const OUTLINE_OVERLAY = {
   loThua: { color: [204, 102, 0], bufferMeters: 0.4 },
+  loThuaMoi: { color: [204, 102, 0], bufferMeters: 0.4 },
 };
 
 // Đường/điểm gốc gần như không có bề rộng thật (Line ~0.5m, Point = 1 pixel) — rasterize thẳng

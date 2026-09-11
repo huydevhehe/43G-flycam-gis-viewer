@@ -259,6 +259,9 @@ const throttle = (callback) => {
     tenDuong: { table: "vec_ten_duong", type: "point" },
     ranhB: { table: "vec_ranh_b", type: "polygon" },
     loThua: { table: "vec_lo_thua", type: "polygon" },
+    // Bộ lô thửa mới thay thế "loThua" trên UI (xem app.js) — bảng cũ vẫn để nguyên trong
+    // whitelist, không xoá, phòng khi cần bật lại.
+    loThuaMoi: { table: "vec_lo_thua_moi", type: "polygon" },
   };
 
   app.get("/api/vector-hit", async (req, res) => {
