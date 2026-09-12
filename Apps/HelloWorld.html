@@ -220,6 +220,32 @@
                 <span class="layer-opacity-value">100%</span>
               </div>
             </div>
+            <!-- 2 lớp THỬ NGHIỆM, lên song song để so sánh — chưa thay cho lớp ở trên.
+                 Mặc định TẮT (không "checked") vì đang thử, tránh đập ngay vào mắt người xem
+                 thường. loThuaFull: đủ ranh giới nhưng KHÔNG có tên chủ đất (0%, khác loThuaMoi
+                 84%). qhCnsddFull: 38 loại chức năng ghi rõ chữ nhưng còn lỗ hổng chưa số hoá hết. -->
+            <div class="layer-item">
+              <label class="menu-checkbox-item">
+                <input type="checkbox" id="chkLoThuaFullLayer">
+                <span class="custom-checkbox"></span>
+                <span>Lô thửa (thử nghiệm, đủ ranh — chưa có tên chủ)</span>
+              </label>
+              <div class="layer-opacity-control">
+                <input type="range" class="layer-opacity" data-layer="loThuaFull" min="0" max="100" step="1" value="100">
+                <span class="layer-opacity-value">100%</span>
+              </div>
+            </div>
+            <div class="layer-item">
+              <label class="menu-checkbox-item">
+                <input type="checkbox" id="chkQhCnsddFullLayer">
+                <span class="custom-checkbox"></span>
+                <span>Quy hoạch SDĐ (thử nghiệm, mở rộng)</span>
+              </label>
+              <div class="layer-opacity-control">
+                <input type="range" class="layer-opacity" data-layer="qhCnsddFull" min="0" max="100" step="1" value="100">
+                <span class="layer-opacity-value">100%</span>
+              </div>
+            </div>
             <!-- Đại diện cho TOÀN BỘ dự án Flycam (ảnh trực giao) — thay cho khối danh sách
                  12 dự án đã tạm ẩn ở trên: tích là hiện hết, bỏ tích là ẩn hết -->
             <div class="layer-item">

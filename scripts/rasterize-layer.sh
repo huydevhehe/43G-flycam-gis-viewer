@@ -14,7 +14,7 @@ TMP_DIR="rasterize_tmp/$LAYER_KEY"
 
 if [ -z "$LAYER_KEY" ]; then
   echo "Dung: bash scripts/rasterize-layer.sh <layerKey> [maxZoom, mac dinh 18]"
-  echo "layerKey hop le: qhCnsdd, longDuong, tuyenDuong, timDuong, tenDuong, ranhB, loThua, loThuaMoi"
+  echo "layerKey hop le: qhCnsdd, longDuong, tuyenDuong, timDuong, tenDuong, ranhB, loThua, loThuaMoi, loThuaFull, qhCnsddFull"
   exit 1
 fi
 

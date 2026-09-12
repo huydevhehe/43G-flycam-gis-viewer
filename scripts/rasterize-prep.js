@@ -9,6 +9,9 @@ import pool from "../db.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const aciPalette = JSON.parse(fs.readFileSync(path.join(__dirname, "aciPalette.json"), "utf8"));
+const qhCnsddFullPalette = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "qhCnsddFullPalette.json"), "utf8"),
+);
 
 const LAYER_TABLES = {
   qhCnsdd: "vec_qh_cnsdd",
@@ -22,6 +25,19 @@ const LAYER_TABLES = {
   // "loThua" cũ (chỉ có 169 thửa của 1 tờ). Giữ song song cả 2 bảng trong DB, không xoá bảng
   // cũ — chỉ đổi UI sang hiện "loThuaMoi" (xem app.js, khối tanBinhLayers.loThua bị comment).
   loThuaMoi: "vec_lo_thua_moi",
+  // Ranh giới đã rà lại, phủ kín toàn khu (30.438 thửa) — KHÔNG có tên chủ/địa chỉ, chỉ có
+  // diện tích. Lên song song với loThuaMoi, không thay thế (xem app.js).
+  loThuaFull: "vec_lo_thua_full",
+  // Quy hoạch SDĐ bản mở rộng — 39 loại chức năng ghi rõ bằng chữ (cột chuc_nang_qh), không
+  // có mã ACI như qhCnsdd cũ. Xem CATEGORY_COLOR bên dưới để biết cách tô màu riêng cho layer này.
+  qhCnsddFull: "vec_qh_cnsdd_full",
+};
+
+// Layer tô màu theo TÊN CHỮ (không phải mã số ACI) — mỗi layer khai báo tên cột chứa nhãn và
+// bảng tra tên -> RGB riêng. Cơ chế này độc lập với FIXED_COLOR (1 màu/layer) và ACI (mã số),
+// dùng cho dữ liệu có phân loại rõ ràng bằng text (VD 38 loại chức năng quy hoạch).
+const CATEGORY_COLOR = {
+  qhCnsddFull: { column: "chuc_nang_qh", palette: qhCnsddFullPalette },
 };
 
 // Layer không có dữ liệu màu ACI gốc — cho màu cố định.
@@ -31,6 +47,9 @@ const FIXED_COLOR = {
   ranhB: [220, 38, 38],
   loThua: [255, 230, 140],
   loThuaMoi: [255, 230, 140], // Giữ đúng màu vàng của loThua cũ để giao diện không đổi tông
+  // loThuaFull cũng chỉ có ranh + diện tích (không có cột "color") — thiếu dòng này sẽ rơi vào
+  // nhánh ACI mặc định và query cột "color" không tồn tại trong bảng vec_lo_thua_full, vỡ SQL.
+  loThuaFull: [255, 230, 140],
 };
 
 // Layer chỉ cần vẽ ĐƯỜNG VIỀN, không tô đặc — gdal_rasterize với input Polygon sẽ tô kín toàn bộ
@@ -45,6 +64,7 @@ const OUTLINE_ONLY = new Set(["ranhB"]);
 const OUTLINE_OVERLAY = {
   loThua: { color: [204, 102, 0], bufferMeters: 0.4 },
   loThuaMoi: { color: [204, 102, 0], bufferMeters: 0.4 },
+  loThuaFull: { color: [204, 102, 0], bufferMeters: 0.4 },
 };
 
 // Đường/điểm gốc gần như không có bề rộng thật (Line ~0.5m, Point = 1 pixel) — rasterize thẳng
@@ -82,7 +102,13 @@ async function main() {
   // (đơn vị độ); nếu xuất thẳng độ rồi rasterize với -tr tính theo mét, gdal_rasterize sẽ
   // hiểu nhầm đơn vị (0.5 "độ" ≈ 55km, sai hoàn toàn) và ra ảnh chỉ 1 pixel. Mercator cũng
   // khớp hệ toạ độ WebMercatorQuad dùng khi cắt tile ở bước sau.
-  const hasColor = !FIXED_COLOR[layerKey];
+  // 3 cach to mau, xet theo thu tu uu tien: mau co dinh 1 mau/layer (FIXED_COLOR) > tra theo
+  // ten chu (CATEGORY_COLOR, VD 38 loai chuc nang quy hoach) > mac dinh tra theo ma so ACI.
+  const category = CATEGORY_COLOR[layerKey];
+  const isFixed = !!FIXED_COLOR[layerKey];
+  const isCategory = !isFixed && !!category;
+  const isAci = !isFixed && !isCategory;
+
   let geomExpr = "ST_Force2D(ST_Transform(geom, 3857))";
   if (OUTLINE_ONLY.has(layerKey)) {
     geomExpr = `ST_Boundary(${geomExpr})`;
@@ -90,16 +116,22 @@ async function main() {
   if (BUFFER_METERS[layerKey]) {
     geomExpr = `ST_Buffer(${geomExpr}, ${BUFFER_METERS[layerKey]})`;
   }
-  const columns = hasColor
-    ? `id, color, ST_AsGeoJSON(${geomExpr}) AS geojson`
-    : `id, ST_AsGeoJSON(${geomExpr}) AS geojson`;
+  let columns = `id, ST_AsGeoJSON(${geomExpr}) AS geojson`;
+  if (isAci) columns = `id, color, ST_AsGeoJSON(${geomExpr}) AS geojson`;
+  if (isCategory) columns = `id, ${category.column} AS nhan, ST_AsGeoJSON(${geomExpr}) AS geojson`;
   const result = await pool.query(`SELECT ${columns} FROM ${table}`);
 
   let fallbackCount = 0;
   const features = result.rows.map((row) => {
     let rgb;
-    if (hasColor) {
+    if (isAci) {
       rgb = aciPalette[String(row.color)];
+      if (!rgb) {
+        fallbackCount++;
+        rgb = FALLBACK_COLOR;
+      }
+    } else if (isCategory) {
+      rgb = category.palette[row.nhan];
       if (!rgb) {
         fallbackCount++;
         rgb = FALLBACK_COLOR;
@@ -133,7 +165,8 @@ async function main() {
 
   console.log(`Đã ghi ${features.length} feature vào ${outputPath}.`);
   if (fallbackCount > 0) {
-    console.warn(`CẢNH BÁO: ${fallbackCount} feature dùng mã ACI không có trong bảng, đã tô màu hồng dự phòng.`);
+    const loaiMa = isCategory ? "nhãn" : "mã ACI";
+    console.warn(`CẢNH BÁO: ${fallbackCount} feature dùng ${loaiMa} không có trong bảng, đã tô màu hồng dự phòng.`);
   }
 
   await pool.end();

@@ -1,0 +1,46 @@
+{
+  "Đất giao thông": [180, 180, 180],
+  "Đất giao thông/đường": [180, 180, 180],
+  "Phần đường/lề đường quy hoạch": [190, 190, 190],
+  "Tim đường quy hoạch (hatch)": [160, 160, 160],
+  "Khoảng lùi xây dựng": [224, 224, 224],
+
+  "Cây xanh cách ly": [76, 175, 80],
+  "Đất cây xanh cách ly": [76, 175, 80],
+  "Cây xanh công viên": [56, 142, 60],
+  "Cây xanh cảnh quan": [129, 199, 132],
+  "Cây xanh đơn vị ở": [102, 187, 106],
+
+  "Sông rạch/mặt nước": [66, 165, 245],
+  "Ao hồ/mặt nước": [79, 195, 247],
+  "Sông rạch/kênh": [41, 121, 255],
+
+  "Đất dân cư hiện hữu": [255, 213, 79],
+  "Đất ở hiện hữu": [255, 235, 59],
+  "Đất dân cư": [255, 224, 130],
+  "Đất dân cư/khu vực tuyến điện": [255, 241, 118],
+  "Đất dân cư/khu vực điện": [255, 241, 118],
+
+  "Đất ở xây dựng mới": [255, 167, 38],
+  "Đất dân cư xây dựng mới": [255, 152, 0],
+  "Đất nhóm nhà ở": [255, 183, 77],
+  "Đất chung cư": [255, 138, 101],
+  "Đất hỗn hợp": [255, 112, 67],
+
+  "Đất công trình công cộng": [149, 117, 205],
+  "Công trình công cộng cấp quận/TP": [126, 87, 194],
+  "Công trình công cộng cấp đơn vị ở": [179, 157, 219],
+  "Công trình công cộng khu vực": [149, 117, 205],
+  "Công trình công cộng cấp đô thị": [103, 58, 183],
+  "Đất giáo dục": [156, 39, 176],
+  "Đất trường THPT": [171, 71, 188],
+  "Đất y tế": [194, 24, 91],
+  "Đất thể dục thể thao": [123, 31, 162],
+  "Trung tâm nghiên cứu": [106, 27, 154],
+
+  "Đất kho bãi": [141, 110, 99],
+  "Đất hạ tầng kỹ thuật": [255, 112, 67],
+  "Đất/công trình điện": [255, 87, 34],
+  "Đất thương mại dịch vụ": [236, 64, 122],
+  "Sử dụng đất quy hoạch": [189, 189, 189]
+}

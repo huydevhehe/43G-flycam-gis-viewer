@@ -262,6 +262,11 @@ const throttle = (callback) => {
     // Bộ lô thửa mới thay thế "loThua" trên UI (xem app.js) — bảng cũ vẫn để nguyên trong
     // whitelist, không xoá, phòng khi cần bật lại.
     loThuaMoi: { table: "vec_lo_thua_moi", type: "polygon" },
+    // Ranh giới đã rà lại, phủ kín toàn khu — KHÔNG có tên chủ/địa chỉ, chỉ diện tích.
+    // Lên song song với loThuaMoi để sếp so sánh, không thay thế (xem app.js).
+    loThuaFull: { table: "vec_lo_thua_full", type: "polygon" },
+    // Quy hoạch SDĐ bản mở rộng, 38 loại chức năng ghi rõ bằng chữ.
+    qhCnsddFull: { table: "vec_qh_cnsdd_full", type: "polygon" },
   };
 
   app.get("/api/vector-hit", async (req, res) => {

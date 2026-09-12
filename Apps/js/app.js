@@ -415,6 +415,8 @@ function attachStaticUiEvents() {
     chkTenDuongLayer: ["tenDuong"],
     chkRanhBLayer: ["ranhB"],
     chkLoThuaLayer: ["loThuaMoi"], // Trỏ sang bộ mới — "loThua" cũ đang tạm ẩn, xem phía trên
+    chkLoThuaFullLayer: ["loThuaFull"],
+    chkQhCnsddFullLayer: ["qhCnsddFull"],
   };
   for (const [checkboxId, layerKeys] of Object.entries(tanBinhCheckboxMap)) {
     const checkbox = document.getElementById(checkboxId);
@@ -624,6 +626,42 @@ async function init() {
     ],
   });
   tanBinhLayers.loThuaMoi.load();
+
+  // 2 lớp THỬ NGHIỆM — lên song song với loThuaMoi/qhCnsdd để sếp so sánh, CHƯA thay thế.
+  // setVisible(false) sau load() vì VectorLayerTool luôn tự bật hiển thị khi load() (không tự
+  // đọc trạng thái checkbox HTML) — thiếu dòng này lớp sẽ hiện sẵn dù checkbox chưa tích.
+  tanBinhLayers.loThuaFull = new VectorLayerTool(viewer, {
+    id: "loThuaFull",
+    hasPopup: true,
+    popupTitle: "Lô thửa (thử nghiệm)",
+    popupFields: [
+      { field: "so_to", label: "Tờ số" },
+      { field: "so_thua", label: "Thửa số" },
+      {
+        field: "dien_tich_m2",
+        label: "Diện tích",
+        format: (v) => (v != null ? `${v.toFixed(1)} m²` : "-"),
+      },
+    ],
+  });
+  tanBinhLayers.loThuaFull.load();
+  tanBinhLayers.loThuaFull.setVisible(false);
+
+  tanBinhLayers.qhCnsddFull = new VectorLayerTool(viewer, {
+    id: "qhCnsddFull",
+    hasPopup: true,
+    popupTitle: "Quy hoạch SDĐ (thử nghiệm)",
+    popupFields: [
+      { field: "chuc_nang_qh", label: "Chức năng quy hoạch" },
+      {
+        field: "dien_tich_m2",
+        label: "Diện tích",
+        format: (v) => (v != null ? `${v.toFixed(1)} m²` : "-"),
+      },
+    ],
+  });
+  tanBinhLayers.qhCnsddFull.load();
+  tanBinhLayers.qhCnsddFull.setVisible(false);
 
   // 5. Dựng UI danh sách dự án + gắn toàn bộ sự kiện
   renderProjectList(groupsConfig);
