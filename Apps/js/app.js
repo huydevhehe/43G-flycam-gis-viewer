@@ -642,6 +642,11 @@ async function init() {
         label: "Diện tích",
         format: (v) => (v != null ? `${v.toFixed(1)} m²` : "-"),
       },
+      {
+        field: "chu_vi_m",
+        label: "Chu vi",
+        format: (v) => (v != null ? `${v.toFixed(1)} m` : "-"),
+      },
     ],
   });
   tanBinhLayers.loThuaFull.load();
